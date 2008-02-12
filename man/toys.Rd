@@ -3,7 +3,7 @@
 \docType{data}
 \title{ Toys manufacturing data}
 \description{
-This data set reports control quality results from a toys factory.
+toys dataframe reports control quality results from a toys factory.
 }
 \usage{data(toys)}
 \format{

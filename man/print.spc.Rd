@@ -1,7 +1,7 @@
 \name{print.spc}
 \alias{print.spc}
-\title{Function to print spc object statistics }
-\description{This function receives an spc object and summarizes statistical details.
+\title{Print method for spc object }
+\description{\code{print.spc} implements generic print function to spc object.
 }
 \usage{
 \method{print}{spc}(x, \dots)
@@ -9,22 +9,25 @@
 
 \arguments{
 \item{x}{an object of class spc}
-\item{...}{furter arguments to be added}
+\item{...}{further arguments to be added}
 }
-\details{  This function extracts information from the lists embedded internally in the SPC object given. 
+\details{  \code{prints.spc} prints out brief informations on spc object.
 }
 \value{
-This function does not return any value 
+This function does not return any value.
 }
-\references{ Final user function }
+\references{}
 \author{ Giorgio Spedicato }
-\note{ Default printed informations are general statistics.
+\note{ Printed informations are general statistics.
 }
 \seealso{ \code{\link{spc}}, \code{\link{plot.spc}} }
-\examples{set.seed(100)
-x=c(rnorm(30,m=10,s=1), rnorm(30,m=12,s=1), rnorm(30,m=10,s=4))
-sg=sort(rep(1:30,3))
-#1 LA + SEMPLICE
+\examples{
+#data brakeCap
+
+data(brakeCap)
+x=brakeCap$quencing
+sg=brakeCap$subgroup
+
 go=spc(x=x,sg=sg,type="xbar", testType=2, k=0,p=0,nSigma=0)
 plot.spc(go)
 print.spc(go)

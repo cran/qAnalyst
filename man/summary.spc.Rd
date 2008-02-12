@@ -1,23 +1,21 @@
 \name{summary.spc}
 \alias{summary.spc}
-\title{Function to print spc object statistics }
-\description{This function receives an spc object and prints general statistics, the chart elements coordinates, performed test details.
+\title{Generic summary method for spc objects }
+\description{\code{summary.spc} implements generic summary method on spc object. summary.spc prints general statistics, the chart elements coordinates and performed test details.
 }
 
 \usage{
 \method{summary}{spc}(object, \dots)
 }
 
-
-
 \arguments{
 \item{object}{ an object of class spc }
 \item{...}{furter arguments to be added}
 }
-\details{  This function extracts information from the lists embedded internally in the SPC object given. 
+\details{summary.spc function extracts information from the lists embedded internally in the SPC object given. 
 }
 \value{
-This function does not return any value 
+This function does not return any value. 
 }
 \references{ Final user function }
 \author{ Giorgio Spedicato }

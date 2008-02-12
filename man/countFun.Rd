@@ -1,25 +1,26 @@
 \name{countFun}
 \alias{countFun}
-\title{ Function to count number of non missing values }
-\description{counts the number of non missing values in a vector or within groups 
+\title{ Internal function to count the number of non missing values }
+\description{\code{countFun} counts the number of non missing values in a vector.
 }
 \usage{countFun(x)}
 \arguments{
   \item{x}{ data vector }
 }
 \details{
-internal function
+Internal function.
 }
 \value{
-an integer whose value is the number of non - missing values
+an integer whose value is the number of non - missing values.
 }
 \references{ Internal function }
 \author{ Andrea Spano' and Giorgio Spedicato }
-\note{ This is mainly an internal function used by centerFun}
+\note{ countFun is an internal function used by centerFun and stats4CapFun}
 \seealso{ \code{\link{centerFun}}}
-\examples{## The function is currently defined as
+\examples{
+## Simple example
 a=c(NA,NA,2,4,6,1,NA)
-print(countFun(a))
+countFun(a)
 #4}
 \keyword{ internal }
 \keyword{ methods }

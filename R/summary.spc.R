@@ -2,31 +2,32 @@
 function(object, ...)
 {
 ########################################
-#titolazione
+#title
 ########################################
 spcObj = object
-titolo=paste(spcObj$general$chartType, " chart of ", spcObj$general$xName, sep="")
-print(titolo)
+titleObj=paste(spcObj$general$chartType, " chart of ", spcObj$general$xName, sep="")
+cat("\n",titleObj,"\n")
 
 #########################################
-#stampa statistiche generali
+#general statistics print
 ##########################################
 cat("\n",spcObj$general$xName, " main stats", "\n", "------------------------------------------","\n")
 
 namesGenStats=c("Total observations", "complete observations", "missing observations", "number of groups",
-"Mean", "min", "max","total std. dev.", "within std. dev.", "between std. dev.", "average range")
+"Mean", "min", "max","total std. dev.", "average range")
 #prepares general statistics table
 genStats=c(spcObj$general$numTot, spcObj$general$numNNmissing, spcObj$general$numMissing, spcObj$general$nGroupsX,
 spcObj$general$meanX, spcObj$general$minX, spcObj$general$maxX,
-spcObj$general$sdTotX, spcObj$general$sdWithinX, spcObj$general$sdBetweenX, spcObj$general$meanRangeX)
+spcObj$general$sdTotX,  spcObj$general$meanRangeX)
 genStats=as.matrix(genStats)
 #naming and printing
 colnames(genStats)=c("value")
 rownames(genStats)=c(namesGenStats)
+format(genStats,digits=5,scientific=FALSE)
 print(genStats)
 
 ########################################
-#control chart test results
+#control charts tests results
 ########################################
 
 cat("\n", "Control chart tests results", "\n", "------------------------------------------","\n")
@@ -66,6 +67,6 @@ ucl3s=as.vector(spcObj$graphPars$ucl3)
 dfTableCarta=cbind(punti,lcl3s, lcl2s, lcl1s, centro, ucl1s, ucl2s, ucl3s)
 dfTableCarta=as.data.frame(dfTableCarta)
 names(dfTableCarta)=c("points", "lcl3s", "lcl2s", "lcl1s", "center line", "ucl1s", "ucl2s", "ucl3s")
-print(dfTableCarta)
+print(dfTableCarta,digits=5)
 invisible(NULL)
 }

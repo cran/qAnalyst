@@ -3,21 +3,21 @@
 \docType{data}
 \title{ Tubes for television}
 \description{
-Tubes for television control quality ispections.
+Tubes dataframe contains data from control quality ispections of tubes for television.
 }
 \usage{data(tubes)}
 \format{
   A data frame with 20 observations on the following 2 variables.
   \describe{
-    \item{\code{rejects}}{number of rejected devices during quality ispection}
-    \item{\code{sampled}}{sampled devices during quality inspection}
+    \item{\code{rejects}}{number of rejected devices during quality ispection.}
+    \item{\code{sampled}}{sampled devices during quality inspection.}
   }
 }
 \details{
-This dataset contains summary results of twenty quality ispections
+Results of twenty quality ispections are reported.
 }
 \source{
-Industrial data
+Industrial data.
 }
 \references{
 Content of this dataset can be shown by p-chart.

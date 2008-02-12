@@ -1,8 +1,8 @@
 \name{clFun}
 \alias{clFun}
-\title{ Function to compute upper or lower confidence limits for the specified control chart }
+\title{ Internal function to compute upper or lower confidence limits for the specified control chart }
 \description{
-Returns a vector of length equal to the number of points to be plotted in the chart corrensponding to the required confidence limit,
+\code{clFun} calculates upper and lower confidence limits for control charts. Confidence limits are retuned as a vector.
 }
 \usage{
 clFun(x, sg, nSigma, cl, type = "xbar")
@@ -10,28 +10,25 @@ clFun(x, sg, nSigma, cl, type = "xbar")
 
 \arguments{
   \item{x}{ data vector }
-  \item{sg}{ subgroup id for variable chart, subgroups dimension for variables chart, moving range interval in mr chart }
-  \item{nSigma}{ number of standard deviations from the center line statistic}
-  \item{cl}{ "u" or "l" respectively for upper or lower limit}
+  \item{sg}{ subgroup id for variable chart, subgroups dimension for variables chart, moving window interval in i / mr chart. A detailed description of sg field is in \code{\link{spc}} function help. }
+  \item{nSigma}{ number of standard deviations from the center line}
+  \item{cl}{ "u" or "l" respectively for upper or lower confidence limit}
   \item{type}{ type of control chart}
 }
 \details{
-It allows subgroup of not constant dimension.
+clFun allows to handle unequal sample size subgroups that makes confidence limits to vary. A warning is thrown if subgroup dimension is less than 2 when variables chart for groups are calculated.
 }
 \value{
-a vector of length equal to the number of points in the chart representing either lower o upper confidence limit
+A vector of length equal to the number of points in the chart representing either lower o upper confidence limit.
 }
 \references{ Montgomery, Statistical Quality Control }
 \author{ Andrea Spano' and Giorgio Specicato }
 \note{ Internal function}
 \seealso{ \code{\link{spc}}, \code{\link{plot.spc}}}
 \examples{
-#simple example
-x=rnorm(30,m=10,s=1)
-sg=sort(rep(1:10,3))
-limiti=clFun(x=x,sg=sg,type="r",cl="u",nSigma=3)
-#4.125743 4.125743 4.125743 4.125743 4.125743 4.125743 4.125743 4.125743
-#4.125743 4.125743
+#brakeCap dataset
+data(brakeCap)
+clFun(x=brakeCap$hardness, sg=brakeCap$subgroup, nSigma=2, cl="u", type="xbar")
 }
 \keyword{ methods }
 \keyword{ internal }

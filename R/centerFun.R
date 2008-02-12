@@ -2,13 +2,12 @@
 function(x, sg, type = "xbar")
 {
 dfTemp=cbind(x,sg)
-#xbar linea centrale
+#xbar central line
 if(type == "xbar")
 {
 center = mean(x, na.rm = TRUE)
 }
-#Montgomery nn da' stimatorie linea centrale per dimensione variabile
-#verificare dopo la bonta della formula
+
 #r chart
 if(type=="r")
 {
@@ -22,7 +21,7 @@ if(type=="s")
 sdCampionari= tapply(x,sg,sd,na.rm=TRUE)
 sdCampionari[is.nan(sdCampionari)]=NA
 sgSize = tapply(x,sg,countFun)
-#formula montgomery pp 189
+# montgomery pp 189
 numFormula=sum(sdCampionari^2*(sgSize-1),na.rm=TRUE)
 m=length(unique(sg))
 denFormula=sum(sgSize)-m
@@ -36,19 +35,18 @@ center=mean(na.omit(x))
 #mr chart
 if(type=="mr")
 {
-#preso da minitab
-#sg è l'ampiezza del range
+#sg is range length
 center=mean(na.omit(mrangeFun(x,sg=sg)))
 d2=getCoeffFun(sg+1, "d2")
-#come vuole minitab
+#come vuole
 center=center/d2
 }
 #p chart
 if(type=="p")
 {
 sumX=sum(na.omit(x))
-#controlla: ok perche nelle carte per attributi sg risulta un vettore contente
-#la dimensione del difetto
+#in attributes chart sg is a vector contsaining
+#sample dimension
 sumN=sum(na.omit(sg))
 pLine=sumX/sumN
 center=pLine
@@ -56,9 +54,8 @@ center=pLine
 #np chart
 if(type=="np")
 {
-#pongo la linea centrale come mean(x). Sul montgomery nn esiste
-#controllare anche su minitab. Ma pare che su internet la linea
-#sia costante. Quindi x ora mean
+#central line equal mean(x). No references on montgomery
+#x equal
 center=mean(na.omit(x))
 }
 #c chart
@@ -70,7 +67,7 @@ center=mean(na.omit(x))
 if(type=="u")
 {
 sumX=sum(na.omit(x))
-#controlla
+#checks
 sumN=sum(na.omit(sg))
 uLine=sumX/sumN
 center=uLine

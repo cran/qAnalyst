@@ -1,27 +1,27 @@
 `clFun` <-
 function(x, sg, nSigma, cl ,type = "xbar")
 {
-#da' uno stop se la linea richiesta non esiste
+#if not "u" or "l" stops
 if(!is.element(cl, c("u", "l"))) {stop("Error! cl must be either u or l")}
 #Xbar Chart
 if(type == "xbar")
 {
 xbar = tapply(x, sg, mean, na.rm = TRUE)
-#tiene conto dei valori mancanti
+#considers missing value
 xbar[is.nan(xbar)]=NA
-
 xbarbar = mean(x, na.rm = TRUE)
+#waring is sg<2
 sgSize = as.numeric(tapply(x, sg, countFun))
-#attenzione ai limiti di confidenza. Se la dimensione media dei
-#sottogruppi sta sotto 7 allora usiamo R per stimare la variabilita altrimenti usiamo S
+#care confidence limits
+#sg below 7 R else sg
 sgMean=mean(sgSize,na.rm=TRUE)
-#caso uno: uso R per la variabilita
+#sg below 8
 if (sgMean<7)
 {
 r = tapply(x, sg, rFun)
 rbar = mean(r,na.rm=TRUE)
 d2 = getCoeffFun(sgSize, "d2")
-#restituisce il vettore dei limits
+#returns limits vecotr
 if(cl == "u") clout = xbarbar + (nSigma*rbar)/(d2*sqrt(sgSize))
 if(cl == "l") clout = xbarbar - (nSigma*rbar)/(d2*sqrt(sgSize))
 }
@@ -41,12 +41,12 @@ if(type=="r")
 xbar = tapply(x, sg, mean, na.rm = TRUE)
 xbar[is.nan(xbar)]=NA
 r = tapply(x, sg, rFun)
-#verificare stimatore rbar numerosita campionaria variabile
+#check estimator r bar variable sample dim
 r[is.nan(r)]=NA
 rbar = mean(r,na.rm=TRUE)
 xbarbar = mean(x, na.rm = TRUE)
 sgSize = tapply(x, sg, countFun)
-#da Montgomery pp 157 in fondo sostituendo a 3 nSigma
+#da Montgomery pp 157  where 3 = nSigma
 d3 = getCoeffFun(sgSize, "d3")
 d2 = getCoeffFun(sgSize, "d2")
 
@@ -63,7 +63,7 @@ if(cl == "l") clout = LCL
 #S Chart
 if(type=="s")
 {
-#bisogna innanziutto stimare SBAR. Riprendo codice da central line
+#SBAR estimation
 sdCampionari= tapply(x,sg,sd,na.rm=TRUE)
 sdCampionari[is.na(sdCampionari)]=NA
 sgSize = tapply(x,sg,countFun)
@@ -72,8 +72,8 @@ numFormula=sum(sdCampionari^2*(sgSize-1),na.rm=TRUE)
 m=length(unique(sg))
 denFormula=sum(sgSize,na.rm=TRUE)-m
 sbar=(numFormula/denFormula)^0.5
-#Montgomery da' formule solo per 3 sigma. riadatto le costanti
-# B3 e B4 sostituendo a tre nSigma
+#Montgomery uses 3 sigma
+# here we use B3 and B4
 c4 = getCoeffFun(sgSize, "c4")
 costSup=(1+(nSigma/c4)*(sqrt(1-c4^2)))
 costInf=(1-(nSigma/c4)*(sqrt(1-c4^2)))
@@ -83,10 +83,10 @@ if(cl == "l") { clout=sbar*costInf; clout=ifelse(clout>0,clout,0)}
 }
 if(type=="i")
 {
-#ricalcola la linea centrale e il moving range
+#recalculates moving range
 center=mean(na.omit(x))
 #MR=centerFun(x=x,sg=sg,type="mr",interval=interval) old
-#calcola i limiti centrali
+#calculates center line
 MR=centerFun(x=x,sg=sg,type="mr") 
 UCL=center+nSigma*MR
 LCL=center-nSigma*MR
@@ -95,8 +95,8 @@ if(cl == "l") clout=rep(LCL,length(x))
 }
 if(type=="mr")
 {
-#ricalcola la linea centrale
-#vedere sopra per quando si usava interval
+#recalculates center kline
+#see when interval is used
 MR=centerFun(x=x,sg=sg,type="mr")
 #calcola i limiti centrali
 d2 = getCoeffFun(sg+1, "d2")
@@ -112,26 +112,26 @@ if(cl == "l") clout=rep(LCL,length(x))
 }
 if(type=="p")
 {
-#calcola la linea centrale
+#calculates center line
 pbar=centerFun(x=x,sg=sg,type="p")
-#calcola i limiti centrali
+
 UCL=pbar+nSigma*sqrt((pbar*(1-pbar))/sg)
 LCL=pbar-nSigma*sqrt((pbar*(1-pbar))/sg)
-#introduce anche un controllo x la non negativita
+#non negativity
 LCL=ifelse(LCL<0,0,LCL)
 if(cl == "u") clout=UCL
 if(cl == "l") clout=LCL
 }
 if(type=="np")
 {
-#ricalcola la linea centrale. necessita sia di pbar
-#che di npbar
+#calculates pbar
+#for npbar
 pbar=centerFun(x=x,sg=sg,type="p")
 npbar=centerFun(x=x,sg=sg,type="np")
-#calcola i limiti centrali
+#calculates UCL
 UCL=npbar+nSigma*sqrt(sg*pbar*(1-pbar))
 LCL=npbar-nSigma*sqrt(sg*pbar*(1-pbar))
-#introduce anche un controllo x la non negativita
+#nn negativity
 LCL=ifelse(LCL<0,0,LCL)
 if(cl == "u") clout=UCL
 if(cl == "l") clout=LCL
@@ -154,7 +154,7 @@ LCL=ifelse(LCL<0,0,LCL)
 if(cl == "u") clout=UCL
 if(cl == "l") clout=LCL
 }
-#restituisce il vettore dei limiti
+#outs results
 return(clout)
 }
 

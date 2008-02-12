@@ -1,9 +1,9 @@
 \name{iFun}
 \alias{iFun}
 
-\title{ iFun }
+\title{ Internal function to create sequences }
 \description{
-  Internal function to create a sequence from 1 to n, where n=length(x)
+  \code{iFun} is an internal function to create a sequence from 1 to n, where n=length(x).
 }
 \usage{
 iFun(x)
@@ -12,10 +12,10 @@ iFun(x)
   \item{x}{ a numeric vector }
 }
 \details{
- This is a simple internal function, used for plotting purpuoses
+ iFun is a simple internal function, used by plot method.
 }
 \value{
-a sequnce vector
+a sequence vector.
 }
 \references{ Internal function }
 \author{ Giorgio Spedicato and Andrea Spano' }
@@ -25,9 +25,8 @@ a sequnce vector
 #very simple example
 x=c(4,5,8,2,3)
 output=iFun(x)
-print(output)
+output
 # 1 2 3 4 5
-
 }
 \keyword{ methods }
 \keyword{ internal }

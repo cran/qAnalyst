@@ -1,9 +1,9 @@
 \name{blemish}
 \alias{blemish}
 \docType{data}
-\title{ Blemishes on sampled quare of fabric}
+\title{ Blemishes on sampled squares of fabric}
 \description{
-This data set comes from a linen manifacturing. 100 square yard of fabric are sampled and blemish are counted.
+Blemish dataframe comes from a linen manifacturing. 100 square yards of fabric are sampled and blemishes are counted.
 }
 \usage{data(blemish)}
 \format{
@@ -14,17 +14,17 @@ This data set comes from a linen manifacturing. 100 square yard of fabric are sa
   }
 }
 \details{
-Data from this sample are suitable to be projected into a C control chart.
+Data from blemish example are suitable to be projected onto a C control chart.
 }
 \source{
 Industrial data.
 }
 \references{
-This type of data can be used withing attribute chart presentation.
+This type of data can be used within attribute chart presentations.
 }
 \examples{
 data(blemish)
-cchart=spc(x=blemish$blemish, sg=1, type="c", name="blemish")
+cchart=spc(x=blemish$blemish,  type="c", name="blemish")
 plot(cchart)
 }
 \keyword{datasets}

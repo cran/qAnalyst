@@ -1,9 +1,9 @@
 \name{mrangeFun}
 \alias{mrangeFun}
 
-\title{ Function to calculate moving range vector }
+\title{ Internal function to calculate moving range vector }
 \description{
-Given a x vector of individual values and an interval width (sg), it return a vector containing moving ranges. The first interval elements are NA.
+\code{mrangeFun} returns the moving ranges vector of specified interval from an input vector x.
 }
 \usage{
 mrangeFun(x, sg = 1)
@@ -17,7 +17,7 @@ mrangeFun(x, sg = 1)
   NA elements are present in the first interval elements of the returned vector as moving range is not defined there.
 }
 \value{
-a numeric vector of moving ranges
+A numeric vector of moving ranges.
 }
 \references{ internal function }
 \author{ Giorgio Spedicato }
@@ -28,7 +28,6 @@ a numeric vector of moving ranges
 #simple example
 a=c(1,3,5,2,6,2,6,8,2)
 print(mrangeFun(a,2))
-
 }
 
 \keyword{ methods }

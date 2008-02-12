@@ -1,23 +1,23 @@
 \name{ylabFun}
 \alias{ylabFun}
 
-\title{ Function to make the title of y axis label }
+\title{ Internal function to make labels for y axis }
 \description{
-Internal function to generate the y axis label
+\code{ylabFun} makes y-axis labels.
 }
 \usage{
 ylabFun(xName, type = "xbar")
 }
 
 \arguments{
-  \item{xName}{ is the name of the analyzed variable }
-  \item{type}{ type of chart to be plotted, default "xbar" }
+  \item{xName}{ is the name of the analyzed variable. }
+  \item{type}{ type of chart to be plotted, default "xbar". Specified chart type must have been implemented. }
 }
 \details{
-This is an internal function
+This is an internal function.
 }
 \value{
-  A string that concatenates chartType of xNames
+A string that concatenates chartType of xName.
 }
 \references{ Internal function }
 \author{ Giorgio Spedicato }

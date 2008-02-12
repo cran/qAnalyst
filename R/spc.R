@@ -1,24 +1,46 @@
 `spc` <-
-function(x,sg=NULL,type="xbar", name=deparse(substitute(x)), testType=NA, k=NA, p=NA, nSigma=NA)
+function(x,sg=NULL,type="xbar", name=deparse(substitute(x)), testType=1, k=NA, p=NA, nSigma=NA)
 {
 
 #checks whereter the specified chart exists (and is implemented)
-type=switchFun(type=type,argument="chart")
-
+type=switchFun(argument=type,type="chart")
 if(!is.element(type,c("xbar","s","r", "i","mr", "p", "np", "c", "u"))) stop("Error! Unrecognized chart")
-
 #chart
-if((is.null(sg)) && (!type=="c")) stop("Error! sg is not needed only in c chart")
+#bug
+if((is.null(sg)) && (!type=="c")) stop("Error! Sg is always required with the exception of c charts")
 
+#checks if x is numeric
+
+if (!is.numeric(x)) stop("Error! x is not numeric")
+
+#changes subgroups
+#only for i-mr
+#sg externally is moving range groups length (e.g. 2) but internally
+#is moving range difference (e.g. 1)
+#bug
+if (is.element(type,c("i", "mr"))){ 
+
+
+sg=sg-1
+if (sg<1) stop("Error! width of the moving range window must be at least equal to 2")
+
+}
 sg=sgFun(x=x,sg=sg,type=type)
+#check if variables chart exist sg<2
+if (is.element(type,c("xbar","s","r"))) {
+	sgSize = as.numeric(tapply(x, sg, countFun))
+	sgSizeTest=ifelse(sgSize>1, 1,0)
+	if (sum(sgSizeTest)<length(sgSizeTest)) warning("At least one subgroup with dimension lower than 2 in a variable chart for subgroups", call.=FALSE, immediate.=TRUE)}
 
-#nome della carta (elemento restituito ok)
+#chart name
 xName = name
-#points (elemento restituito)
+
+#graphical elements
+
 points = pointsFun(x=x, sg=sg, type = type)
 i = iFun(points)
 center = centerFun(x=x, sg=sg, type = type)
-#limits (elementi restituiti)
+
 ucl3 = clFun(x = x, sg = sg, nSigma = 3, cl = "u" ,type = type)
 lcl3 = clFun(x = x, sg = sg, nSigma = 3, cl = "l" ,type = type)
 ucl2 = clFun(x = x, sg = sg, nSigma = 2, cl = "u" ,type = type)
@@ -26,60 +48,60 @@ lcl2 = clFun(x = x, sg = sg, nSigma = 2, cl = "l" ,type = type)
 ucl1 = clFun(x = x, sg = sg, nSigma = 1, cl = "u" ,type = type)
 lcl1 = clFun(x = x, sg = sg, nSigma = 1, cl = "l" ,type = type)
 
-#shift limits (elementi restituiti)
+
 iForLimits = iLimitsFun(i)
 ucl3ForLimits = xLimitsFun(ucl3)
 lcl3ForLimits = xLimitsFun(lcl3)
 
-#Esecuzione Test e salvataggio (elementi restituiti) (a seconda che testCode sia o non sia nullo)
-if (is.na(testType))
+#executing test
+if (is.null(testType))
 	{
-		risultatiTest=list()
-		risultatiTest$colorSet="#40f907" #verde positivo = col9
-		risultatiTest$testMatrix=NULL
+		resultsOfTest=list()
+		resultsOfTest$colorSet="#40f907" #very greej = col9
+		resultsOfTest$testMatrix=NULL
 	}
 else	
 	{
-		risultatiTest=testFun(x=x,sg=sg, type=type,  testType=testType, nSigma=nSigma, k=k,p=p)
+		resultsOfTest=testFun(x=x,sg=sg, type=type,  testType=testType, nSigma=nSigma, k=k,p=p)
 	}
 
-#ylim (elementi restituiti)
+#ylim 
 ylim = limitsFun(list(points, ucl3, lcl3))
 
-#ylab (elementi restituiti)
+#ylab 
 ylab = ylabFun(xName, type = type)
 
 #xlab text (depending individuals or groups)
+#bug
+xlab=ifelse(is.element(type,c("i","mr")),"index", "subgroups")
 
-xlab=ifelse(is.element(type,c("i","mr")),"individual values", "groups")
+#statistical utility launch
 
-#lancio dell'utilita statistica
-
-statistiche=statsFun(x=x,sg=sg, type=type)
-#creazione delle sottoliste resituite
-#lista con nome, tipo carte e statistiche
+statisticsList=statsSpcFun(x=x,sg=sg, type=type)
+#creating sublists
+#lista con nome, tipo carte e statisticsList
 
 general=list()
 
 general$chartType=type
 general$xName=xName
 
-#statistiche
-general$numTot=statistiche$numTot
-general$numNNmissing=statistiche$numNNmissing
-general$numMissing=statistiche$numMissing
-general$nGroupsX=statistiche$nGroupsX
+#statisticsList
+general$numTot=statisticsList$numTot
+general$numNNmissing=statisticsList$numNNmissing
+general$numMissing=statisticsList$numMissing
+general$nGroupsX=statisticsList$nGroupsX
 
-general$meanX=statistiche$meanX
-general$minX=statistiche$minX
-general$maxX=statistiche$maxX
+general$meanX=statisticsList$meanX
+general$minX=statisticsList$minX
+general$maxX=statisticsList$maxX
 
-general$sdTotX=statistiche$sdTotX
-general$sdWithinX=statistiche$sdWithinX
-general$sdBetweenX=statistiche$sdBetweenX
-general$meanRangeX=statistiche$meanRangeX
+general$sdTotX=statisticsList$sdTotX
+general$sdWithinX=statisticsList$sdWithinX
+general$sdBetweenX=statisticsList$sdBetweenX
+general$meanRangeX=statisticsList$meanRangeX
 #
-#una lista graphPars per i parametri grafici
+#greating graphPars
 graphPars=list()
 
 graphPars$xlab=xlab
@@ -100,14 +122,14 @@ graphPars$lcl1=lcl1
 graphPars$iForLimits=iForLimits
 graphPars$ucl3ForLimits=ucl3ForLimits
 graphPars$lcl3ForLimits=lcl3ForLimits
-# i colori sono comunque un argomento grafico anche se calcolati in
-graphPars$colors=risultatiTest$colorSet
+#colors are graphpars
+graphPars$colors=resultsOfTest$colorSet
 
-#creazione della lista dei risultati dei test
+#creates list of testResults
 testResults=list()
-testResults$testOutput=risultatiTest$testMatrix
+testResults$testOutput=resultsOfTest$testMatrix
 
-#bindaggio e restutyzione dei risultati
+#final binding
 spcObj=list(general=general, graphPars=graphPars, testResults=testResults, call=match.call())
 class(spcObj) = "spc"
 invisible(spcObj)

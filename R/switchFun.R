@@ -1,12 +1,12 @@
 `switchFun` <-
 function(type,argument)
 {
-#swiccha gli argomenti a default se l'utente sbaglia a inserire#
-#studia le distributioni
-	if (argument=="chart")
+#utent input parsing#
+#analysis of charts
+	if (type=="chart")
 	{
 		#converte i codici delle distribuzioni nel suffisso interno ad r
-		out=switch(type,"XBAR"="xbar", 
+		out=switch(argument,"XBAR"="xbar", 
 		"X-BAR"="xbar", 
 		"x-bar"="xbar",
 		"range"="r",
@@ -14,10 +14,27 @@ function(type,argument)
 		"individuals"="i",
 		"individual"="i",
 		"moving range"="mr")
-		#se l'argomento nn è macciato allora restituisce il default
-		if (is.null(out)) out=type
+		#if not finding returns whot sentd
+		if (is.null(out)) out=argument
 	}
-	#se sono previsti altri argomenti ci possono aggiuntgere
+#analysis of distribution
+	if (type=="distribution")
+	{
+		#converte i codici delle distribuzioni nel suffisso interno ad r
+		out=switch(argument,"normal"="norm",
+		"normale"="norm",
+		"dnorm"="norm",
+		"dweibull"="weibull",
+		"log-normal"="lnorm",
+		"dlnorm"="lnorm",
+		"lognormal"="lnorm",
+		"exponential"="exp",
+		"chi-squared"="chisq",
+		"logistic"="logis"
+		)
+		#se l'argomento e' macciato allora restituisce il default
+		if (is.null(out)) out=argument
+	}
 invisible(out)
 }
 

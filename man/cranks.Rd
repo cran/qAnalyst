@@ -3,23 +3,23 @@
 \docType{data}
 \title{ Cranks data set}
 \description{
-This dataset comes from an engines assembly department, where the deviation from an ideal position of a parts of the crankshaft are measured throught working days.
+Cranks dataframe comes from an engines assembly department, where the deviation from an ideal position of a parts of the crankshaft are measured daily.
 }
 \usage{data(cranks)}
 \format{
   A data frame with 125 observations on the following 2 variables.
   \describe{
-    \item{\code{crankshaft}}{Distance in millimeters from the actuual point of the crankshaft to the baseline position}
-    \item{\code{workingDay}}{working day of the relevations. This is the subgroups id.}
+    \item{\code{crankshaft}}{Distance in millimeters from the actual point of the crankshaft to the baseline position.}
+    \item{\code{workingDay}}{Working day of the relevation. This is the subgroup id.}
   }
 }
 \details{
-Subgroups dimension is not equal
+Subgroups dimensions are not equal.
 }
 \source{
-Industrial data
+Industrial data.
 }
-\references{This dataset can be used to show x-bar and s-bar chart capabilities}
+\references{Cranks dataset can be used to show subgroups charts capabilities}
 \examples{
 data(cranks)
 xbarchart=spc(x=cranks$crankshaft, sg=cranks$workingDay, type="xbar", name="crankshaft")

@@ -2,29 +2,19 @@
 \alias{xLimitsFun}
 
 \title{ Internal function to return x variable confidence limits plotting coordinates}
-\description{
-It receives a vector of x coordinates and returns another vector of x coordinates
-}
-\usage{
-xLimitsFun(x)
-}
+\description{\code{xLimitsFun} receives a x vector and returns a sorted vector of length 2*length(x) with duplicated x elements.}
+\usage{xLimitsFun(x)}
 
 \arguments{
-  \item{x}{ it is a vector of coordinates }
+  \item{x}{ a vector.}
 }
-\details{
-This is an internal function
-}
-\value{
-The object returned is a vector of coordinates
-}
+\details{\code{xLimitsFun} is an internal function defined to plot confidence limits. Therefore x is a vector of integer representing x coordinates of points.}
+\value{The object returned is a vector of coordinates.}
 \references{ Internal function }
 \author{ Andrea Spano' }
-\note{ Used by spc
-}
+\note{ Used by spc}
 \seealso{  \code{\link{spc}}}
 \examples{
-
 #only for illustrative purpuoses
 x=c(1,2,3,4)
 output=xLimitsFun(x)

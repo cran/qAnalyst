@@ -30,27 +30,27 @@ if(type=="p")
 {
 probs=x/sg
 #controlla che le probabilita siano in un range sensato
-ifelse((probs>1 || probs <0), stop("Error on input data"),NA)
+ifelse((probs>1 || probs <0), stop("Error! Data uncoherent with specified chart: p <0 or p>1"),NA)
 points=probs
 }
 if(type=="np")
 {
 #controlla che i difetti siano non negativi
-ifelse((x<0), stop("negative values in input data"),NA)
-ifelse(x>sg, stop("number of defect/successer higher than number of trials"), NA)
+ifelse((x<0), stop("Error! Negative values in input data"),NA)
+ifelse(x>sg, stop("Error! Number of defect/successer higher than number of trials"), NA)
 points=x
 }
 if(type=="c")
 {
 #controlla che i punti siano non negativi
-ifelse((x<0), stop("negative values in input data"),NA)
+ifelse((x<0), stop("Error! Negative values in input data"),NA)
 points=x
 }
 if(type=="u")
 {
 #controlla che i punti siano non negativi
-ifelse((x<0), stop("negative values in input data"),NA)
-ifelse((sg<=0), stop("negative values in group sizes"),NA)
+ifelse((x<0), stop("Error! Negative values in input data"),NA)
+ifelse((sg<=0), stop("Error! Negative values in group sizes"),NA)
 ui=x/sg
 points=ui
 }
