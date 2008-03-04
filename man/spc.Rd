@@ -13,7 +13,7 @@ spc(x, sg, type = "xbar", name = deparse(substitute(x)), testType = 1, k = NA, p
 
   \item{sg}{ Subgroup variable. This argument has a different meaning according to chart type.
 
-	\code{xbar}, \code{r} and \code{s} charts: \code{sg} represents rational sub-group of observations. It can be specified either as a vector, of the same length of \code{x} of ordered subgroup id, or as a constant value that will be replicated along x.
+	\code{xbar}, \code{r} and \code{s} charts: \code{sg} represents rational sub-group of observations. It can be specified either as a vector, of the same length of \code{x} of ordered subgroup id, or as a constant value that will be replicated along x. Subgroup dimension must be greather than one.
 
 	\code{i} and \code{mr} charts: \code{sg} represents the width of the window over which moving range are computed. Must be a scalar. Default value is set to two.
 
@@ -67,8 +67,7 @@ spc(x, sg, type = "xbar", name = deparse(substitute(x)), testType = 1, k = NA, p
 }
 
 \details{
-\code{spc} function performs coherence test on subgroups dimension and chart name. Then it calculates graphical parameters, statistics values and test results and stores this values in lists.
-
+\code{spc} function performs coherence tests on subgroups dimension and chart name. Then it calculates graphical parameters, statistics values and test results and stores this values in lists.
 
 }
 \value{An object of class spc}

@@ -1,5 +1,5 @@
 `capabilityNormal` <-
-function(x,sg=length(x),lsl=NULL,usl=NULL,target=NULL, name=deparse(substitute(x)), toler=6, histPars=c(NA,NA))
+function(x,sg=length(x),lsl=NULL,usl=NULL,target=NULL, name=deparse(substitute(x)), toler=6, historicalMean = NA, historicalSd = NA)
 {
 
 #coherence testing
@@ -30,7 +30,7 @@ nTotalX=length(x)
 nCompleteX=length(na.omit(x))
 nMissingX=nTotalX-nCompleteX
 nGroupsX=length(unique(sg))
-meanX=ifelse(is.na(histPars[1]), mean(x,na.rm=TRUE), histPars[1])
+meanX=ifelse(is.na(historicalMean), mean(x,na.rm=TRUE), historicalMean)
 sdOverallX=sd(x,na.rm=TRUE)
 
 #ppm overall calculations
@@ -67,7 +67,7 @@ ddist=infoFun$dfun
 
 
 
-if (is.na(histPars[2])==TRUE) {
+if (is.na(historicalSd)==TRUE) {
 	if (nGroupsX<nTotalX) {
 		#need a deviance vector
 		devVector=tapply(x,sg,devFun,center="mean")
@@ -85,7 +85,7 @@ if (is.na(histPars[2])==TRUE) {
 		#use unbiasing constant d2(2)=1.128. Before 0.8865
 		sdWithinX=rbar/getCoeffFun(2, "d2")
 	}
-} else {sdWithinX=histPars[2]}
+} else {sdWithinX=historicalSd}
 
 
 #estimation ppm
@@ -185,7 +185,7 @@ summaryInfo$pfun=pdist
 
 #binding cpm
 
-#observed / generaò
+#observed / general
 	genStats$nTotalX=nTotalX
 	genStats$nCompleteX=nCompleteX
 	genStats$nMissingX=nMissingX

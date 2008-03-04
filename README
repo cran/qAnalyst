@@ -37,4 +37,8 @@ Pareto chart are avaiable.
 Functions to fit distribution and to assess goodness of fit (probability plot and Anderson Darling stats) are avaiabile.
 Several bugs have been fixed in control charts section.
 
+################################################################################################
+Version 0.52 provided the following enhancements:
+Capability for normal data modification
+Correction on d2 coefficient when n=1m, now equal to zero. If  sugroups equal to one in a shewart chart exist, an error will be returned.
 

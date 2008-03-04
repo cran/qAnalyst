@@ -30,7 +30,7 @@ sg=sgFun(x=x,sg=sg,type=type)
 if (is.element(type,c("xbar","s","r"))) {
 	sgSize = as.numeric(tapply(x, sg, countFun))
 	sgSizeTest=ifelse(sgSize>1, 1,0)
-	if (sum(sgSizeTest)<length(sgSizeTest)) warning("At least one subgroup with dimension lower than 2 in a variable chart for subgroups", call.=FALSE, immediate.=TRUE)}
+	if (sum(sgSizeTest)<length(sgSizeTest)) stop("Error! At least one subgroup with dimension lower than 2 in a variable chart for subgroups", call.=FALSE, immediate.=TRUE)}
 
 #chart name
 xName = name
