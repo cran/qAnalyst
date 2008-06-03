@@ -19,18 +19,17 @@ if (!is.numeric(x)) stop("Error! x is not numeric")
 #is moving range difference (e.g. 1)
 #bug
 if (is.element(type,c("i", "mr"))){ 
-
-
 sg=sg-1
 if (sg<1) stop("Error! width of the moving range window must be at least equal to 2")
-
 }
+
 sg=sgFun(x=x,sg=sg,type=type)
 #check if variables chart exist sg<2
 if (is.element(type,c("xbar","s","r"))) {
 	sgSize = as.numeric(tapply(x, sg, countFun))
 	sgSizeTest=ifelse(sgSize>1, 1,0)
-	if (sum(sgSizeTest)<length(sgSizeTest)) stop("Error! At least one subgroup with dimension lower than 2 in a variable chart for subgroups", call.=FALSE, immediate.=TRUE)}
+#	if (sum(sgSizeTest)<length(sgSizeTest)) ("Error! At least one subgroup with dimension lower than 2 in a variable chart for subgroups", call.=FALSE, immediate.=TRUE)
+}
 
 #chart name
 xName = name

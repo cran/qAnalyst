@@ -41,4 +41,7 @@ Several bugs have been fixed in control charts section.
 Version 0.52 provided the following enhancements:
 Capability for normal data modification
 Correction on d2 coefficient when n=1m, now equal to zero. If  sugroups equal to one in a shewart chart exist, an error will be returned.
+################################################################################################
+Version 0.53 provided the following enhancements:
+Small bugs correction
 
