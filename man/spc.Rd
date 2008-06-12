@@ -35,7 +35,7 @@ spc(x, sg, type = "xbar", name = deparse(substitute(x)), testType = 1, k = NA, p
 		test 1: \code{k} points out of \code{p} points beyond \code{nSigma*sd} from center line. Default values are \code{k=1 p=1 nSigma=3}
 	
 		
-		test 2: \code{k} points out of \code{p} points in a row on same side of centre line. Default values are: \code{k=9 p=9}
+		test 2: \code{k} points out of \code{p} points in a row on same side of center line. Default values are: \code{k=9 p=9}
 
 
 		test 3: \code{k} points out of \code{p} points in a row either all increasing or decreasing. Default values: \code{k=6 p=6}

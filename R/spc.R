@@ -1,135 +1,124 @@
 `spc` <-
-function(x,sg=NULL,type="xbar", name=deparse(substitute(x)), testType=1, k=NA, p=NA, nSigma=NA)
+function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)), 
+    testType = 1, k = NA, p = NA, nSigma = NA) 
 {
+    type = switchFun(argument = type, type = "chart")
+    if (!is.element(type, c("xbar", "s", "r", "i", "mr", "p", 
+        "np", "c", "u"))) 
+        stop("Error! Unrecognized chart")
+    if ((is.null(sg)) && (!type == "c")) 
+        stop("Error! Sg is always required with the exception of c charts")
+    if (!is.numeric(x)) 
+        stop("Error! x is not numeric")
+    if (is.element(type, c("i", "mr"))) {
+        sg = sg - 1
+        if (sg < 1) 
+            stop("Error! width of the moving range window must be at least equal to 2")
+    }
+    sg = sgFun(x = x, sg = sg, type = type)
+    if (is.element(type, c("xbar", "s", "r"))) {
+        sgSize = as.numeric(tapply(x, sg, countFun))
+        sgSizeTest = ifelse(sgSize > 1, 1, 0)
+        if (sum(sgSizeTest) < length(sgSizeTest)) 
+            warning("At least one subgroup with dimension lower than 2 in a variable chart for subgroups", 
+                call. = FALSE, immediate. = TRUE)
+    }
+    xName = name
+    points = pointsFun(x = x, sg = sg, type = type)
+    i = iFun(points)
+    center = centerFun(x = x, sg = sg, type = type)
 
-#checks whereter the specified chart exists (and is implemented)
-type=switchFun(argument=type,type="chart")
-if(!is.element(type,c("xbar","s","r", "i","mr", "p", "np", "c", "u"))) stop("Error! Unrecognized chart")
-#chart
-#bug
-if((is.null(sg)) && (!type=="c")) stop("Error! Sg is always required with the exception of c charts")
+    nSigmaForTests=rep(NA,length(testType))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    nSigmaForTests[c(testType) %in% c(1,5)]=ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3,max(c(nSigma)[c(testType) %in% c(1,5)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    nSigmaForTests[c(testType) %in% c(6)]=ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0 || is.na(nSigma), 2,max(c(nSigma)[c(testType) %in% c(6)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    nSigmaForTests[c(testType) %in% c(7,8)]=ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1,max(c(nSigma)[c(testType) %in% c(7,8)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
 
-#checks if x is numeric
+    ucl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3,max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "u", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3,max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "l", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    ucl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0 || is.na(nSigma), 2,max(c(nSigma)[c(testType) %in% c(6)])), cl = "u", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0 || is.na(nSigma), 2,max(c(nSigma)[c(testType) %in% c(6)])), cl = "l", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    ucl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1,max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "u", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1,max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "l", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
 
-if (!is.numeric(x)) stop("Error! x is not numeric")
+    iForLimits = iLimitsFun(i)
+    ucl3ForLimits = xLimitsFun(ucl3)
+    lcl3ForLimits = xLimitsFun(lcl3)
+    if (is.null(testType)) {
+        resultsOfTest = list()
+        resultsOfTest$colorSet = "#40f907"
+        resultsOfTest$testMatrix = NULL
+    }
+    else {
+        resultsOfTest = testFun(x = x, sg = sg, type = type, 
+            testType = testType, nSigma = nSigma, k = k, p = p)
+    }
+    ylim = limitsFun(list(points, ucl3, lcl3))
+    ylab = ylabFun(xName, type = type)
+    xlab = ifelse(is.element(type, c("i", "mr")), "index", "subgroups")
+    statisticsList = statsSpcFun(x = x, sg = sg, type = type)
 
-#changes subgroups
-#only for i-mr
-#sg externally is moving range groups length (e.g. 2) but internally
-#is moving range difference (e.g. 1)
-#bug
-if (is.element(type,c("i", "mr"))){ 
-sg=sg-1
-if (sg<1) stop("Error! width of the moving range window must be at least equal to 2")
-}
-
-sg=sgFun(x=x,sg=sg,type=type)
-#check if variables chart exist sg<2
-if (is.element(type,c("xbar","s","r"))) {
-	sgSize = as.numeric(tapply(x, sg, countFun))
-	sgSizeTest=ifelse(sgSize>1, 1,0)
-#	if (sum(sgSizeTest)<length(sgSizeTest)) ("Error! At least one subgroup with dimension lower than 2 in a variable chart for subgroups", call.=FALSE, immediate.=TRUE)
-}
-
-#chart name
-xName = name
-
-#graphical elements
-
-points = pointsFun(x=x, sg=sg, type = type)
-i = iFun(points)
-center = centerFun(x=x, sg=sg, type = type)
-
-ucl3 = clFun(x = x, sg = sg, nSigma = 3, cl = "u" ,type = type)
-lcl3 = clFun(x = x, sg = sg, nSigma = 3, cl = "l" ,type = type)
-ucl2 = clFun(x = x, sg = sg, nSigma = 2, cl = "u" ,type = type)
-lcl2 = clFun(x = x, sg = sg, nSigma = 2, cl = "l" ,type = type)
-ucl1 = clFun(x = x, sg = sg, nSigma = 1, cl = "u" ,type = type)
-lcl1 = clFun(x = x, sg = sg, nSigma = 1, cl = "l" ,type = type)
-
-
-iForLimits = iLimitsFun(i)
-ucl3ForLimits = xLimitsFun(ucl3)
-lcl3ForLimits = xLimitsFun(lcl3)
-
-#executing test
-if (is.null(testType))
-	{
-		resultsOfTest=list()
-		resultsOfTest$colorSet="#40f907" #very greej = col9
-		resultsOfTest$testMatrix=NULL
+    # Probabilità di avere il numero di fuori controllo uguale o maggiore/uguale al numero effettivamente trovato 0.5.4. PGO
+	if(c(testType %in% c(1))){
+	    probSingleFailure=unique(pnorm(-nSigmaForTests[testType==1])*2) # Calcolo forzatamente approssimato: le carte di controllo approssimano la distribuzione con una gaussiana. Facciamo lo stesso anche noi
+		if(is.vector(resultsOfTest$testMatrix)){ # Se c'è solo un punto fuori controllo la matrice testMatrix diventa un vettore
+    	    numTest1Fail=sum(resultsOfTest$testMatrix["Test1"])
+	    }
+    	else{
+    	    numTest1Fail=sum(resultsOfTest$testMatrix[,"Test1"])
+	    }
+    	probLessEqualPoints=pbinom(q=numTest1Fail,size=statisticsList$nGroupsX,prob=probSingleFailure)
+	    probEqualPoints=pbinom(q=numTest1Fail,size=statisticsList$nGroupsX,prob=probSingleFailure)-ifelse(numTest1Fail==0,0,pbinom(q=numTest1Fail-1,size=statisticsList$nGroupsX,prob=probSingleFailure))
+    	probGreatEqualPoints=1-probLessEqualPoints+probEqualPoints
 	}
-else	
-	{
-		resultsOfTest=testFun(x=x,sg=sg, type=type,  testType=testType, nSigma=nSigma, k=k,p=p)
+	else{
+		probLessEqualPoints=NA
+		probEqualPoints=NA
+		probGreatEqualPoints=NA
 	}
+    # Fine probabilità
 
-#ylim 
-ylim = limitsFun(list(points, ucl3, lcl3))
+    general = list()
+    general$chartType = type
+    general$xName = xName
+    general$numTot = statisticsList$numTot
+    general$numNNmissing = statisticsList$numNNmissing
+    general$numMissing = statisticsList$numMissing
+    general$nGroupsX = statisticsList$nGroupsX
+    general$meanX = statisticsList$meanX
+    general$minX = statisticsList$minX
+    general$maxX = statisticsList$maxX
+    general$sdTotX = statisticsList$sdTotX
+    general$sdWithinX = statisticsList$sdWithinX
+    general$sdBetweenX = statisticsList$sdBetweenX
+    general$meanRangeX = statisticsList$meanRangeX
+    general$testType=testType
+    general$nSigma = nSigmaForTests
 
-#ylab 
-ylab = ylabFun(xName, type = type)
+    graphPars = list()
+    graphPars$xlab = xlab
+    graphPars$ylab = ylab
+    graphPars$points = as.numeric(points)
+    graphPars$i = i
+    graphPars$center = center
+    graphPars$ylim = ylim
+    graphPars$ucl3 = ucl3
+    graphPars$lcl3 = lcl3
+    graphPars$ucl2 = ucl2
+    graphPars$lcl2 = lcl2
+    graphPars$ucl1 = ucl1
+    graphPars$lcl1 = lcl1
+    graphPars$iForLimits = iForLimits
+    graphPars$ucl3ForLimits = ucl3ForLimits
+    graphPars$lcl3ForLimits = lcl3ForLimits
+    graphPars$colors = resultsOfTest$colorSet
 
-#xlab text (depending individuals or groups)
-#bug
-xlab=ifelse(is.element(type,c("i","mr")),"index", "subgroups")
+    testResults = list()
+    testResults$testOutput = resultsOfTest$testMatrix
+    testResults$probPointsEqualTest1=probEqualPoints
+    testResults$probPointsGreaterEqualTest1=probGreatEqualPoints
 
-#statistical utility launch
-
-statisticsList=statsSpcFun(x=x,sg=sg, type=type)
-#creating sublists
-#lista con nome, tipo carte e statisticsList
-
-general=list()
-
-general$chartType=type
-general$xName=xName
-
-#statisticsList
-general$numTot=statisticsList$numTot
-general$numNNmissing=statisticsList$numNNmissing
-general$numMissing=statisticsList$numMissing
-general$nGroupsX=statisticsList$nGroupsX
-
-general$meanX=statisticsList$meanX
-general$minX=statisticsList$minX
-general$maxX=statisticsList$maxX
-
-general$sdTotX=statisticsList$sdTotX
-general$sdWithinX=statisticsList$sdWithinX
-general$sdBetweenX=statisticsList$sdBetweenX
-general$meanRangeX=statisticsList$meanRangeX
-#
-#greating graphPars
-graphPars=list()
-
-graphPars$xlab=xlab
-graphPars$ylab=ylab
-
-graphPars$points=as.numeric(points)
-graphPars$i=i
-graphPars$center=center
-#graphPars$sgSize=sgSize
-graphPars$ylim=ylim
-graphPars$ucl3=ucl3
-graphPars$lcl3=lcl3
-graphPars$ucl2=ucl2
-graphPars$lcl2=lcl2
-graphPars$ucl1=ucl1
-graphPars$lcl1=lcl1
-
-graphPars$iForLimits=iForLimits
-graphPars$ucl3ForLimits=ucl3ForLimits
-graphPars$lcl3ForLimits=lcl3ForLimits
-#colors are graphpars
-graphPars$colors=resultsOfTest$colorSet
-
-#creates list of testResults
-testResults=list()
-testResults$testOutput=resultsOfTest$testMatrix
-
-#final binding
-spcObj=list(general=general, graphPars=graphPars, testResults=testResults, call=match.call())
-class(spcObj) = "spc"
-invisible(spcObj)
+    spcObj = list(general = general, graphPars = graphPars, testResults = testResults, 
+        call = match.call())
+    class(spcObj) = "spc"
+    invisible(spcObj)
 }

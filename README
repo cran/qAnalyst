@@ -39,9 +39,20 @@ Several bugs have been fixed in control charts section.
 
 ################################################################################################
 Version 0.52 provided the following enhancements:
+
 Capability for normal data modification
 Correction on d2 coefficient when n=1m, now equal to zero. If  sugroups equal to one in a shewart chart exist, an error will be returned.
+
 ################################################################################################
 Version 0.53 provided the following enhancements:
+
 Small bugs correction
+
+################################################################################################
+Version 0.54 provided the following enhancements:
+
+Added a new output parameter: (approximated) probability of having a number of out-of-control (test 1) points equal or greater or equal the ones obtained in chart, given that the process is under control
+Small bugs correction
+
+################################################################################################
 
