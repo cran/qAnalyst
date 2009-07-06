@@ -18,8 +18,7 @@
 }
 
 \details{This items lists the descriptions of the performed tests
-\itemize
-{
+\itemize{
 \item{1}{test 1: k points on k beyond zone A (nSigma=3), default values: k=1=p nSigma=3.}
 \item{2}{test 2:  k points in a row on same side of centre line, default values: k=p=9.}
 \item{3}{test 3:  k points in a row all increasing all decreasing, default values: k=p=6.}
