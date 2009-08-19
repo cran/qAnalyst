@@ -10,12 +10,12 @@
   \item{x}{ an object of class transformation }
   \item{...}{ further arguments to be added }
 }
-\details{}
+\details{No details}
 \value{
 No values are returned}
-\references{ }
-\author{ Giorgio Spedicato }
-\note{}
+\references{No references }
+\author{ Andrea Spano'}
+\note{No notes}
 \seealso{  \code{\link{boxcoxFun}}, \code{\link{johnsonFun}}, \code{\link{plot.transformation}} }
 \examples{
 data(warpTiles)

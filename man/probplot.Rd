@@ -20,9 +20,9 @@ probplot(x, distribution, theta, confintervals = FALSE, confidence = 0.95,  name
 }
 \value{
 \code{probplot} returns no value}
-\references{}
+\references{No references}
 \author{ Giorgio Spedicato }
-\note{ }
+\note{No notes }
 \seealso{  \code{\link{funInfoFun}}}
 \examples{
 data(warpTiles)

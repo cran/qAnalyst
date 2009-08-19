@@ -55,10 +55,9 @@ Added a new output parameter: (approximated) probability of having a number of o
 Small bugs correction
 
 ################################################################################################
-Version 0.55 provided the following enhancements:
+Version 0.60 provided the following enhancements:
 
-More control has been added on axis scale labels of charts display. No options to user were added. 
-Small bugs correction
+Function plot.spc allows to specify cex parameters for Strip, Axes, Scales and Points as a function argument. 
 
 ################################################################################################
 

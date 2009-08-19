@@ -14,9 +14,9 @@
 }
 \value{
 No values are returned}
-\references{}
+\references{No refrences}
 \author{ Giorgio Spedicato }
-\note{ }
+\note{No notes }
 \seealso{  \code{\link{funInfoFun}}}
 \examples{
 #warpTiles data

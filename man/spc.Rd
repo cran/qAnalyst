@@ -72,8 +72,8 @@ spc(x, sg, type = "xbar", name = deparse(substitute(x)), testType = 1, k = NA, p
 }
 \value{An object of class spc}
 \references{ Montgomery, Statistical Quality Control }
-\author{ Giorgio Spedicato and Andrea Spano' }
-\note{}
+\author{ Andrea Spano' }
+\note{No notes}
 \seealso{  \code{\link{plot.spc}}, \code{\link{print.spc}}}
 
 \examples{

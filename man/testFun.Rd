@@ -9,37 +9,45 @@
 \arguments{
   \item{x}{ input data vector.}
   \item{sg}{ subgroups id, vector or integer.}
-  \item{type}{ character element for the type of chart.}
-  \item{testType}{ a vector (eventually a scalar) containing the code of the desidered tests to be performed.}
-  \item{k}{ k is a parameter specific for the test. It is compulsory to be specified as a vector of length equal to length(testType).}
-  \item{p}{ p is a parameter specific for the test. it is compulsory to be specified as a vector of length equal to length(testType).}
+  \item{type}{ string denoting chart type.}
+  \item{testType}{A vector or a scalar of test codes to be performed. Eight tests are implemented corrensponding to codes 1-8. Default performed test is 1.
+		
+		test 1: \code{k} points out of \code{p} points beyond \code{nSigma*sd} from center line. Default values are \code{k=1 p=1 nSigma=3}
+	
+		
+		test 2: \code{k} points out of \code{p} points in a row on same side of center line. Default values are: \code{k=9 p=9}
 
+
+		test 3: \code{k} points out of \code{p} points in a row either all increasing or decreasing. Default values: \code{k=6 p=6}
+		
+
+		test 4: \code{k} points out of \code{p} points in a row alternating up and down. Default values: \code{k= 14 p=14}
+
+
+		test 5: \code{k} points out of \code{p} points in a row beyond \code{nSigma*sd} from center line. Default values are: \code{k=2 p=3 nSigma = 3} 
+
+
+		test 6: \code{k} points out of \code{p} points in a row beyond \code{nSigma*sd} from center line (one side of center line). Default values: \code{k=4 p = 5 nSigma=2}
+
+
+		test 7: \code{k} points out of \code{p} points in a row within nSigma*sd (both sides of centre line). Default values are: \code{k = 15 p=15 nSigma=1} 
+
+
+		test 8: \code{k} points out of \code{p} points in a row beyond nSigma*sd (both sides of central line). Default values are \code{k=8 p = 8  nSigma=1} 
+
+  }
+  \item{k}{Parameter specific for the test. It is compulsory to be specified as a vector of length equal to length(testType). See details}
+  \item{p}{Parameter specific for the test. it is compulsory to be specified as a vector of length equal to length(testType). See details}
   \item{nSigma}{ standard deviation of confidence line, required in some test.}
 }
 
-\details{This items lists the descriptions of the performed tests
-\itemize{
-\item{1}{test 1: k points on k beyond zone A (nSigma=3), default values: k=1=p nSigma=3.}
-\item{2}{test 2:  k points in a row on same side of centre line, default values: k=p=9.}
-\item{3}{test 3:  k points in a row all increasing all decreasing, default values: k=p=6.}
-\item{4}{test 4:  at least k on p points in a row all up and down, default values: k=p=14.}
-\item{5}{test 5: k out of p point in a row beyond zone A, default values: k=2 p=3 nSigma = 3.}
-\item{6}{test 6:  k out of p points in a row in zone B (nSigma=2) or beyond (one side of center line), default values: k=4 p = 5 nSigma=2.}
-\item{7}{test 7:  k points on p in a row within zone C (both sides of centre line), p=k=15 nSigma=1.}
-\item{8}{test 8:  k points in a row beyond zone C (nSigma=1) (both sides of central line), default values: p=k=8 nSigma=1.}
-}
-
-If the parameter vectors have zero elements, they are converted into default values for the test. To avoid confusion on parameters assignment the length of parameter vectors shall be equal.
-Some checks on the internal coerence of the given parameters are performed.
-
-}
 
 
 \value{A binary vector whose dimension is equal to the points plotted on the control chart is returned. A value of 1 means that the i-th point failed the performed test, a value of 0 means that the i-th points did not failed the performed test.
 
 }
 \references{ Montgomery, Statistical Quality Control.}
-\author{ Giorgio Spedicato and Andrea Spano'.}
+\author{Andrea Spano'}
 \note{ This function is for internal use.}
 \seealso{ \code{\link{spc}} }
 \examples{

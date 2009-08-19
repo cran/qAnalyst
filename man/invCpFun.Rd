@@ -19,7 +19,7 @@ Cp is supposed to be equal to cp, that is cp=cpk.
 A vector containing lsl and usl for given data.}
 \references{ Bothe (1997), Measuring Process Capability, McGraw Hill }
 \author{ Giorgio Spedicato and Andrea Spano' }
-\note{}
+\note{No notes}
 \seealso{ \code{\link{capability}}, \code{\link{funInfoFun}} }
 \examples{
 #brakeCap example

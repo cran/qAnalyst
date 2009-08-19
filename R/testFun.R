@@ -4,7 +4,7 @@
 #verifies that test are between one and eight
 if (!all(is.element(testType, 1:8)))
 {
-stop ("Error! At least one not recognized test")
+stop ("Error! Test must be between 1 and 8")
 }
 
 ###########################################################

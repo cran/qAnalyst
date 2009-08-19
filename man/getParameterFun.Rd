@@ -21,8 +21,8 @@ Tabulated values are used if subgroup size is less than 25. Otherwise, Montogmer
 Value of the requested parameter given sample size.
 }
 \references{ Montgomery, Statistical Quality Control; Wheeler and Chambers (1992). Undenstanding Statistical Process control}
-\author{ Giorgio Spedicato and Andrea Spano'}
-\note{}
+\author{ Andrea Spano'}
+\note{No notes}
 \seealso{ \code{\link{getCoeffFun}} }
 \examples{
 #a simple example

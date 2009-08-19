@@ -21,7 +21,7 @@ Categories with same absolute frequency are sorted according to their appearing 
 \references{ Montgomery, statistical quality control }
 \author{ Giorgio Spedicato }
 \note{ A great part of this code comes from pareto.chart function of Luca Scrucca's qcc package.}
-\seealso{  }
+\seealso{No see also  }
 \examples{
 #MASS data set example
 require(MASS)

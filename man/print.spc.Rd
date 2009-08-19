@@ -16,8 +16,8 @@
 \value{
 This function does not return any value.
 }
-\references{}
-\author{ Giorgio Spedicato }
+\references{No references}
+\author{ Andrea Spano' }
 \note{ Printed informations are general statistics.
 }
 \seealso{ \code{\link{spc}}, \code{\link{plot.spc}} }

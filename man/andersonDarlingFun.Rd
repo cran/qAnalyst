@@ -19,7 +19,7 @@ andersonDarlingFun(x, distribution, theta)
 A vector of two elements: statistics and p-value}
 \references{ Stephens, M.A., eds.: Goodness-of-Fit Techniques. Marcel Dekker, New York. }
 \author{ Andrea Spano', Enrico Pegoraro, Giorgio Spedicato }
-\note{}
+\note{No notes}
 \seealso{  \code{\link{funInfoFun}}}
 \examples{
 data(warpTiles)

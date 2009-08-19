@@ -25,8 +25,8 @@ capabilityNormal(x, sg=length(x), lsl = NULL, usl = NULL, target = NULL, name = 
 }
 \value{ An object of class capability }
 \references{ Bothe (1997), Measuring Process Capability, McGraw Hill }
-\author{ Giorgio Spedicato }
-\note{ }
+\author{ Andrea Spano'}
+\note{No notes}
 \seealso{ \code{\link{plot.capability}}, \code{\link{print.capability}}, \code{\link{summary.capability}} }
 \examples{
 data(brakeCap)

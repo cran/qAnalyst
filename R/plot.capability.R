@@ -8,7 +8,7 @@ xName=paste("Capability histogram of", capabilityObj$summaryInfo$name)
 hStrip=2
 cexStrip=2
 cexAxes=2
-cexScales=1.5  # Modified by pgo for readability
+cexScales=2
 linesWidth=2
 #settings of ylim
 quantiles=capabilityObj$summaryInfo$qfun(ppoints(100), 
@@ -27,28 +27,14 @@ if (capabilityObj$summaryInfo$distribution=="normal")
 
 yLimVector=c(0,yLimMaxCanditate)
 
-# pgo: Modification to show the labels in y axis
-
-xlimFunRet=limitsFun(list(capabilityObj$summaryInfo$x,capabilityObj$summaryInfo$lsl,capabilityObj$summaryInfo$usl))
-
-limSupX=max(c(capabilityObj$summaryInfo$x,capabilityObj$summaryInfo$lsl,capabilityObj$summaryInfo$usl),na.rm=TRUE)
-limInfX=min(c(capabilityObj$summaryInfo$x,capabilityObj$summaryInfo$lsl,capabilityObj$summaryInfo$usl),na.rm=TRUE)
-
-difLimX=limSupX-limInfX
-
-scaleValsX=unique( round(c(seq.int(from=limInfX,to=limSupX,length.out=7)),digits=max(c(1,trunc(-log10(difLimX))+2))) )
-
-# pgo: end modification
-
-
 
 #distribution plot
 options(warn=-1)
 trellis.par.set('layout.heights', list (strip = hStrip))
 pl = histogram( ~ capabilityObj$summaryInfo$x | xName,
 strip = strip.custom (par.strip.text = list(cex = cexStrip, col = "blue")),
-xlab = list(xLab, cex = cexAxes), ylab = list("Density", cex = cexAxes), 
-scales = list(cex=cexScales,x=list(at=scaleValsX,labels=as.character(scaleValsX))),  # pgo: added x for graph readability
+xlab = list(xLab, cex = cexAxes), ylab = list("Density", cex = cexAxes),
+scales = list(cex=cexScales),
 xlim=limitsFun(list(capabilityObj$summaryInfo$x,capabilityObj$summaryInfo$lsl, capabilityObj$summaryInfo$usl)),
 ,ylim=yLimVector,
 ,type = "density",
