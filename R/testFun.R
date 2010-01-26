@@ -1,5 +1,6 @@
-`testFun` <- function(x, sg, type, testType , k, p,  nSigma)
-{
+`testFun` <- 
+function(x, sg, type, testType , k, p,  nSigma, mu = NA, sigma = NA) {
+
 ###########################################################
 #verifies that test are between one and eight
 if (!all(is.element(testType, 1:8)))
@@ -69,212 +70,230 @@ matrixTest = matrix(0, ncol = length(testType), nrow = length(points))
 
 #Define internal function
 .testFun = function(x, sg, testType, type , k, p, nSigma, points = points){
+
+
+
 #############################################################
-#procedure di inizializzazione generali
+# procedure di inizializzazione generali
+#############################################################
 n = length(points)
-center = centerFun (x = x, sg= sg, type = type)
-center= rep(center,n)
-############################################################
-# test 1: k points on k beyond zone A
-# default values k=1 p=1 nSigma=3
-############################################################
-if ( testType == 1)
-{
-nSigma1=ifelse(nSigma==0,3,nSigma)
-upper =  clFun (x=x, sg=sg, nSigma = nSigma1, cl="u" ,type = type)
-lower =  clFun (x=x, sg=sg, nSigma = nSigma1, cl="l" ,type = type)
-k = ifelse(k == 0, 1, k)
-p = ifelse(p == 0, k, p)
+center = centerFun (x = x, sg= sg, type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+center = rep(center, n)
 
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! p shall be not lower than k")}
-out = rep(0, n)
 
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-testUpper = ifelse ( sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
-testLower = ifelse( sum(ifelse(points[tested] < lower[tested], 1, 0)) >=k, 1, 0)
-test = max(testUpper, testLower)
-out[i] = test
+
+############################################################
+# test 1
+# k points on k beyond zone A
+# default values: k = 1, p = 1, nSigma = 3
+############################################################
+if (testType == 1) {
+    nSigma1 = ifelse(nSigma==0, 3, nSigma)
+    upper =  clFun(x=x, sg=sg, nSigma = nSigma1, cl="u", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+    lower =  clFun(x=x, sg=sg, nSigma = nSigma1, cl="l", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+    k = ifelse(k == 0, 1, k)
+    p = ifelse(p == 0, k, p)
+
+    if(p > n){stop("Error! p must be lower or equal than n")}
+    if(p < k){stop("Error! p shall be not lower than k")}
+    out = rep(0, n)
+
+    for(i in p:n) {
+        tested = ((i-p+1):i)
+        testUpper = ifelse(sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
+        testLower = ifelse(sum(ifelse(points[tested] < lower[tested], 1, 0)) >= k, 1, 0)
+        test = max(testUpper, testLower)
+        out[i] = test
+
+    }
+
 }
 
-}
+
+
 ############################################################
-# test 2: k points in a row on same side of centre line
-# default values  k=9 p=9 nSigma = 0
+# test 2
+# k points in a row on same side of centre line
+# default values: k = 9, p = 9, nSigma = 0
 ############################################################
-if (testType == 2)
-{
+if (testType == 2) {
+    k = ifelse(k == 0, 9, k)
+    p = ifelse(p == 0, k, p)
+    if(p > n) {stop("Error! p must be lower or equal than n")}
+    if(p < k) {stop("Error! p shall be not lower than k")}
+    out = rep(0, n)
 
-k = ifelse(k == 0, 9, k)
-p = ifelse(p == 0, k, p)
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! p shall be not lower than k")}
-out = rep(0, n)
-
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-testUpper = ifelse ( sum(ifelse(points[tested] > center[tested], 1, 0)) >= k, 1, 0)
-testLower = ifelse( sum(ifelse(points[tested] < center[tested], 1, 0)) >=k, 1, 0)
-test = max(testUpper, testLower)
-out[i] = test
-}
+    for(i in p:n) {
+        tested = ((i-p+1):i)
+        testUpper = ifelse(sum(ifelse(points[tested] > center[tested], 1, 0)) >= k, 1, 0)
+        testLower = ifelse(sum(ifelse(points[tested] < center[tested], 1, 0)) >= k, 1, 0)
+        test = max(testUpper, testLower)
+        out[i] = test
+    }
 
 }
+
+
+
 ############################################################
-# test 3: k points on p in a row all increasing all decreasing
-# default values k=p=6
+# test 3
+# k points on p in a row all increasing all decreasing
+# default values: k = p = 6
 ############################################################
-if (testType == 3)
-{
-k = ifelse(k == 0, 6, k)
-p = ifelse(p == 0, k, p)
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! p shall be not lower than k")}
-out = rep(0, n)
+if (testType == 3) {
+    k = ifelse(k == 0, 6, k)
+    p = ifelse(p == 0, k, p)
+    if(p > n){stop("Error! p must be lower or equal than n")}
+    if(p < k){stop("Error! p shall be not lower than k")}
+    out = rep(0, n)
 
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-test = ifelse(abs(sum(sign(diff(points[tested]))))==k-1,1,0)
-out[i] = test
-}
+    for( i in p:n) {
+        tested = ((i-p+1):i)
+        test = ifelse(abs(sum(sign(diff(points[tested]))))==k-1,1,0)
+        out[i] = test
+    }
 
 }
+
+
+
 ############################################################
-# test 4: at least k on p points in a row all up and down
-#Default k = 14, p = 14
+# test 4
+# at least k on p points in a row all up and down
+# default values: k = 14, p = 14
 ############################################################
-if (testType ==4)
-{
-k = ifelse(k == 0, 14,k)
-p = ifelse(p == 0, 14,p)
-if(p <5){stop("Error! p must be greater than 4")}
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! p must be greater or equal to k")}
+if (testType ==4) {
+    k = ifelse(k == 0, 14,k)
+    p = ifelse(p == 0, 14,p)
+    if(p < 5){stop("Error! p must be greater than 4")}
+    if(p > n){stop("Error! p must be lower or equal than n")}
+    if(p < k){stop("Error! p must be greater or equal to k")}
 
-out = rep(0, n)
+    out = rep(0, n)
 
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-zerone = rep.int(c(0,1), n)
-length(zerone) = length(tested)-1
-onezero = rep.int(c(1,0), n)
-length(onezero) = length(tested)-1
-test = ifelse(diff(points[tested]) > 0 , 1, 0)
-test = ifelse(sum(test - zerone) == 0 | sum(test - onezero) == 0 , 1, 0)
-out[i] = test
-}
+    for(i in p:n) {
+        tested = ((i-p+1):i)
+        zerone = rep.int(c(0,1), n)
+        length(zerone) = length(tested)-1
+        onezero = rep.int(c(1,0), n)
+        length(onezero) = length(tested)-1
+        test = ifelse(diff(points[tested]) > 0 , 1, 0)
+        test = ifelse(sum(test - zerone) == 0 | sum(test - onezero) == 0 , 1, 0)
+        out[i] = test
+    }
 
 }
+
+
+
 ############################################################
-# test 5: k out of p point in a row beyond zone A (nSigma=3)
-# default k=2 p=3 nSigma = 3
+# test 5
+# k out of p point in a row beyond zone A (nSigma=3)
+# default values: k = 2, p = 3, nSigma = 3
 ############################################################
-if (testType == 5)
-{
-nSigma5=ifelse(nSigma==0,3,nSigma)
-k = ifelse(k == 0, 2, k)
-p = ifelse(p == 0, k+1, p)
-upper =  clFun (x=x, sg=sg, nSigma = nSigma5, cl="u" ,type = type)
-lower =  clFun (x=x, sg=sg, nSigma = nSigma5, cl="l" ,type = type)
+if (testType == 5) {
+    nSigma5 = ifelse(nSigma==0,3,nSigma)
+    k = ifelse(k == 0, 2, k)
+    p = ifelse(p == 0, k+1, p)
+    upper =  clFun (x=x, sg=sg, nSigma = nSigma5, cl="u", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+    lower =  clFun (x=x, sg=sg, nSigma = nSigma5, cl="l", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
 
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! p shall be not lower than k")}
-out = rep(0, n)
+    if(p > n){stop("Error! p must be lower or equal than n")}
+    if(p < k){stop("Error! p shall be not lower than k")}
+    out = rep(0, n)
 
+    for(i in p:n) {
+        tested = ((i-p+1):i)
 
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-
-testUpper = ifelse ( sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
-testLower = ifelse( sum(ifelse(points[tested] < lower[tested], 1, 0)) >=k, 1, 0)
-test = max(testUpper, testLower)
-out[i] = test
+        testUpper = ifelse(sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
+        testLower = ifelse(sum(ifelse(points[tested] < lower[tested], 1, 0)) >= k, 1, 0)
+        test = max(testUpper, testLower)
+        out[i] = test
+    }
 }
-}
+
+
+
 ############################################################
-# test 6 k out of p points in a row in zone B or beyond
-# (one side of center line)
-#  default k=4 p = 5 nSigma=2
+# test 6
+# k out of p points in a row in zone B or beyond (one side of center line)
+# default values: k = 4, p = 5, nSigma = 2
 ############################################################
-if (testType == 6)
-{
-nSigma6=ifelse(nSigma==0,2,nSigma)
-k = ifelse(k == 0, 4, k)
-p = ifelse(p == 0, k+1, p)
-upper =  clFun (x=x, sg=sg, nSigma = nSigma6, cl="u" ,type = type)
-lower =  clFun (x=x, sg=sg, nSigma = nSigma6, cl="l" ,type = type)
+if (testType == 6) {
+    nSigma6=ifelse(nSigma==0, 2, nSigma)
+    k = ifelse(k == 0, 4, k)
+    p = ifelse(p == 0, k+1, p)
+    upper =  clFun (x=x, sg=sg, nSigma = nSigma6, cl="u" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+    lower =  clFun (x=x, sg=sg, nSigma = nSigma6, cl="l" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
 
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! be not lower than k")}
-out = rep(0, n)
+    if(p > n){stop("Error! p must be lower or equal than n")}
+    if(p < k){stop("Error! be not lower than k")}
+    out = rep(0, n)
 
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-testUpper = ifelse(sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
-testLower = ifelse(sum(ifelse(points[tested] < lower[tested], 1, 0)) >=k, 1, 0)
-test = max(testUpper, testLower)
-out[i] = test
+    for(i in p:n) {
+        tested = ((i-p+1):i)
+        testUpper = ifelse(sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
+        testLower = ifelse(sum(ifelse(points[tested] < lower[tested], 1, 0)) >= k, 1, 0)
+        test = max(testUpper, testLower)
+        out[i] = test
+    }
 }
-}
+
+
 
 ############################################################
 # test 7
-#k points on p in a row within zone C (both sides of centre line)
-# p=k=15 nSigma=1
+# k points on p in a row within zone C (both sides of centre line)
+# default values: p = k = 15, nSigma = 1
 ############################################################
-if (testType==7)
-{
-#nSigma per questo test dovrebbe essere 1! Il codice e uguale a sopra
-nSigma7=ifelse(nSigma==0,1,nSigma)
-upper =  clFun (x=x, sg=sg, nSigma = nSigma7, cl="u" ,type = type)
-lower =  clFun (x=x, sg=sg, nSigma = nSigma7, cl="l" ,type = type)
-k = ifelse(k == 0, 15, k)
-p = ifelse(p == 0, k, p)
+if (testType==7) {
+    #nSigma per questo test dovrebbe essere 1! Il codice e uguale a sopra
+    nSigma7 = ifelse(nSigma==0,1,nSigma)
+    upper =  clFun (x=x, sg=sg, nSigma = nSigma7, cl="u" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+    lower =  clFun (x=x, sg=sg, nSigma = nSigma7, cl="l" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+    k = ifelse(k == 0, 15, k)
+    p = ifelse(p == 0, k, p)
 
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! p shall be not lower than k")}
-out = rep(0, n)
+    if(p > n){stop("Error! p must be lower or equal than n")}
+    if(p < k){stop("Error! p shall be not lower than k")}
+    out = rep(0, n)
 
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-test = sum(ifelse(((points[tested] >= lower[tested]) &  (points[tested] <= upper[tested])) , 1, 0))
-test = ifelse(test >= k , 1, 0)
-out[i] = test
+    for( i in p:n) {
+        tested = ((i-p+1):i)
+        test = sum(ifelse(((points[tested] >= lower[tested]) &  (points[tested] <= upper[tested])) , 1, 0))
+        test = ifelse(test >= k , 1, 0)
+        out[i] = test
+    }
 }
-}
+
+
+
 ############################################################
 # test 8
 # k points in a row beyond zone C (both sides of central line)
-#  p=k=8 nSigma=1
+# default values: p = k = 8, nSigma = 1
 ############################################################
-if (testType==8)
-{
-nSigma8=ifelse(nSigma==0,1,nSigma)
-upper =  clFun (x=x, sg=sg, nSigma = nSigma8, cl="u" ,type = type)
-lower =  clFun (x=x, sg=sg, nSigma = nSigma8, cl="l" ,type = type)
-k = ifelse(k == 0, 8, k)
-p = ifelse(p == 0, k, p)
-if(p > n){stop("Error! p must be lower or equal than n")}
-if(p < k){stop("Error! p shall be not lower than k")}
-out = rep(0, n)
+if (testType==8) {
+    nSigma8 = ifelse(nSigma==0,1,nSigma)
+    upper =  clFun (x=x, sg=sg, nSigma = nSigma8, cl="u" ,type = type, mu = mu, sigma = sigma)
+    lower =  clFun (x=x, sg=sg, nSigma = nSigma8, cl="l" ,type = type, mu = mu, sigma = sigma)
+    k = ifelse(k == 0, 8, k)
+    p = ifelse(p == 0, k, p)
+    if(p > n){stop("Error! p must be lower or equal than n")}
+    if(p < k){stop("Error! p shall be not lower than k")}
+    out = rep(0, n)
 
-for( i in p:n)
-{
-tested = ((i-p+1):i)
-test = sum(ifelse(points[tested] > upper[tested] | points[tested] < lower[tested] , 1, 0))
-test = ifelse(test >= k , 1, 0)
-out[i] = test
-}
+    for( i in p:n) {
+        tested = ((i-p+1):i)
+        test = sum(ifelse(points[tested] > upper[tested] | points[tested] < lower[tested] , 1, 0))
+        test = ifelse(test >= k , 1, 0)
+        out[i] = test
+    }
 
 }
+
+
+
 ############################################################
 #where NA 0
 out=ifelse(is.na(out),0,out)

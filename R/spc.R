@@ -1,7 +1,7 @@
 `spc` <-
 function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)), 
-    testType = 1, k = NA, p = NA, nSigma = NA) 
-{
+    testType = 1, k = NA, p = NA, nSigma = NA, mu = NA, sigma = NA) {
+
     type = switchFun(argument = type, type = "chart")
     if (!is.element(type, c("xbar", "s", "r", "i", "mr", "p", 
         "np", "c", "u"))) 
@@ -18,64 +18,104 @@ function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)),
     sg = sgFun(x = x, sg = sg, type = type)
     if (is.element(type, c("xbar", "s", "r"))) {
         sgSize = as.numeric(tapply(x, sg, countFun))
+        # At least one subgroup with only an observation
         sgSizeTest = ifelse(sgSize > 1, 1, 0)
         if (sum(sgSizeTest) < length(sgSizeTest)) 
             warning("At least one subgroup with dimension lower than 2 in a variable chart for subgroups", 
                 call. = FALSE, immediate. = TRUE)
+        # Different sample size (revision 0.6.1, Nicola)
+        if((diff(range(sgSize)) >= 1) && (type=="r")) {
+            warning("Variable sample size. Each sample has a different number of observations. R chart may be difficult to interpret: S chart would be preferable.", 
+                call. = FALSE, immediate. = TRUE)
+        }
     }
+
+    # xbar and i charts: mu and sigma must be both provided (revision 0.6.1, Nicola)
+    if((is.element(type,c("xbar","i"))) & (((!is.na(mu) && is.na(sigma))) || (is.na(mu) && !is.na(sigma)))) {
+        stop("mu and sigma must be both (or noone) provided")
+    }
+
+    # s and r charts: only sigma should be provided (revision 0.6.1, Nicola)
+    if((is.element(type,c("s", "r", "mr"))) & (!is.na(mu))) {
+        warning(paste("only sigma should be provided in the",type,"chart: mu ignored"), call. = FALSE, immediate. = TRUE)
+    }
+    
+    # s, r, mr, p, np, c and u charts: only mu should be provided (revision 0.6.1, Nicola)
+    if((is.element(type,c("p", "np", "c", "u"))) & (!is.na(sigma))) {
+        warning(paste("only mu should be provided in the",type,"chart: sigma ignored"), call. = FALSE, immediate. = TRUE)
+    }
+
+    # sigma must be positive  (revision 0.6.1, Nicola)
+    if(!is.na(sigma) && sigma <= 0) {
+        stop("sigma must be positive")
+    }
+
+  
     xName = name
     points = pointsFun(x = x, sg = sg, type = type)
     i = iFun(points)
-    center = centerFun(x = x, sg = sg, type = type)
+    
+    # Compute center line
+    center = centerFun(x = x, sg = sg, type = type, mu = mu, sigma = sigma)
+    if(length(center)==1) {
+        center = rep(center, length(points))
+    }
+    center[is.na(points)] <- NA  # center line is NA when the point is NA
+    
+    nSigmaForTests=rep(NA,length(testType)) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    nSigmaForTests[c(testType) %in% c(1,5)] = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3, max(c(nSigma)[c(testType) %in% c(1,5)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    nSigmaForTests[c(testType) %in% c(6)]   = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0   || is.na(nSigma), 2, max(c(nSigma)[c(testType) %in% c(6)]))    # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    nSigmaForTests[c(testType) %in% c(7,8)] = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1, max(c(nSigma)[c(testType) %in% c(7,8)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
 
-    nSigmaForTests=rep(NA,length(testType))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    nSigmaForTests[c(testType) %in% c(1,5)]=ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3,max(c(nSigma)[c(testType) %in% c(1,5)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    nSigmaForTests[c(testType) %in% c(6)]=ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0 || is.na(nSigma), 2,max(c(nSigma)[c(testType) %in% c(6)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    nSigmaForTests[c(testType) %in% c(7,8)]=ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1,max(c(nSigma)[c(testType) %in% c(7,8)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-
-    ucl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3,max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "u", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    lcl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3,max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "l", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    ucl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0 || is.na(nSigma), 2,max(c(nSigma)[c(testType) %in% c(6)])), cl = "u", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    lcl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0 || is.na(nSigma), 2,max(c(nSigma)[c(testType) %in% c(6)])), cl = "l", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    ucl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1,max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "u", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    lcl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1,max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "l", type = type) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-
+    ucl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3, max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "u", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    ucl3[is.na(points)] <- NA # if point is NA then confidence limit is also NA
+    lcl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3, max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "l", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl3[is.na(points)] <- NA # if point is NA then confidence limit is also NA
+    ucl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0   || is.na(nSigma), 2, max(c(nSigma)[c(testType) %in% c(6)])),   cl = "u", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    ucl2[is.na(points)] <- NA # if point is NA then confidence limit is also NA
+    lcl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0   || is.na(nSigma), 2, max(c(nSigma)[c(testType) %in% c(6)])),   cl = "l", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl2[is.na(points)] <- NA # if point is NA then confidence limit is also NA
+    ucl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1, max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "u", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    ucl1[is.na(points)] <- NA # if point is NA then confidence limit is also NA
+    lcl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1, max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "l", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl1[is.na(points)] <- NA # if point is NA then confidence limit is also NA
+    
+    # Limits for plot
     iForLimits = iLimitsFun(i)
     ucl3ForLimits = xLimitsFun(ucl3)
     lcl3ForLimits = xLimitsFun(lcl3)
+    
     if (is.null(testType)) {
         resultsOfTest = list()
         resultsOfTest$colorSet = "#40f907"
         resultsOfTest$testMatrix = NULL
+    } else {
+        resultsOfTest = testFun(x = x, sg = sg, type = type, testType = testType, nSigma = nSigma, k = k, p = p, mu = mu, sigma = sigma)
     }
-    else {
-        resultsOfTest = testFun(x = x, sg = sg, type = type, 
-            testType = testType, nSigma = nSigma, k = k, p = p)
-    }
-    ylim = limitsFun(list(points, ucl3, lcl3))
+    ylim = limitsFun(list(points[!is.na(points)], ucl3[ucl3<Inf], lcl3[lcl3>-Inf]))
     ylab = ylabFun(xName, type = type)
     xlab = ifelse(is.element(type, c("i", "mr")), "index", "subgroups")
     statisticsList = statsSpcFun(x = x, sg = sg, type = type)
 
-    # Probabilità di avere il numero di fuori controllo uguale o maggiore/uguale al numero effettivamente trovato 0.5.4. PGO
-	if(c(testType %in% c(1))){
-	    probSingleFailure=unique(pnorm(-nSigmaForTests[testType==1])*2) # Calcolo forzatamente approssimato: le carte di controllo approssimano la distribuzione con una gaussiana. Facciamo lo stesso anche noi
-		if(is.vector(resultsOfTest$testMatrix)){ # Se c'è solo un punto fuori controllo la matrice testMatrix diventa un vettore
-    	    numTest1Fail=sum(resultsOfTest$testMatrix["Test1"])
-	    }
-    	else{
-    	    numTest1Fail=sum(resultsOfTest$testMatrix[,"Test1"])
-	    }
-    	probLessEqualPoints=pbinom(q=numTest1Fail,size=statisticsList$nGroupsX,prob=probSingleFailure)
-	    probEqualPoints=pbinom(q=numTest1Fail,size=statisticsList$nGroupsX,prob=probSingleFailure)-ifelse(numTest1Fail==0,0,pbinom(q=numTest1Fail-1,size=statisticsList$nGroupsX,prob=probSingleFailure))
-    	probGreatEqualPoints=1-probLessEqualPoints+probEqualPoints
-	}
-	else{
-		probLessEqualPoints=NA
-		probEqualPoints=NA
-		probGreatEqualPoints=NA
-	}
-    # Fine probabilità
+    # Probabilita' di avere il numero di fuori controllo uguale o maggiore/uguale al numero effettivamente trovato (0.5.4. PGO)
+    if(c(testType %in% c(1))) {
+        probSingleFailure=unique(pnorm(-nSigmaForTests[testType==1])*2) # Calcolo forzatamente approssimato: le carte di controllo approssimano la distribuzione con una gaussiana. Facciamo lo stesso anche noi
+        if(is.vector(resultsOfTest$testMatrix)) { # Se c'e' solo un punto fuori controllo la matrice testMatrix diventa un vettore
+            numTest1Fail=sum(resultsOfTest$testMatrix["Test1"])
+        }
+        else {
+            numTest1Fail=sum(resultsOfTest$testMatrix[,"Test1"])
+        }
+        probLessEqualPoints=pbinom(q=numTest1Fail,size=statisticsList$nGroupsX,prob=probSingleFailure)
+        probEqualPoints=pbinom(q=numTest1Fail,size=statisticsList$nGroupsX,prob=probSingleFailure)-ifelse(numTest1Fail==0,0,pbinom(q=numTest1Fail-1,size=statisticsList$nGroupsX,prob=probSingleFailure))
+        probGreatEqualPoints=1-probLessEqualPoints+probEqualPoints
+    }
+    else {
+        probLessEqualPoints=NA
+        probEqualPoints=NA
+        probGreatEqualPoints=NA
+    }
+    # Fine probabilita'�
 
     general = list()
     general$chartType = type
@@ -91,7 +131,7 @@ function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)),
     general$sdWithinX = statisticsList$sdWithinX
     general$sdBetweenX = statisticsList$sdBetweenX
     general$meanRangeX = statisticsList$meanRangeX
-    general$testType=testType
+    general$testType = testType
     general$nSigma = nSigmaForTests
 
     graphPars = list()
@@ -114,8 +154,8 @@ function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)),
 
     testResults = list()
     testResults$testOutput = resultsOfTest$testMatrix
-    testResults$probPointsEqualTest1=probEqualPoints
-    testResults$probPointsGreaterEqualTest1=probGreatEqualPoints
+    testResults$probPointsEqualTest1 = probEqualPoints
+    testResults$probPointsGreaterEqualTest1 = probGreatEqualPoints
 
     spcObj = list(general = general, graphPars = graphPars, testResults = testResults, 
         call = match.call())

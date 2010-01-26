@@ -5,7 +5,7 @@
 \code{clFun} calculates upper and lower confidence limits for control charts. Confidence limits are retuned as a vector.
 }
 \usage{
-clFun(x, sg, nSigma, cl, type = "xbar")
+clFun(x, sg, nSigma, cl, type = "xbar", mu = NA, sigma = NA)
 }
 
 \arguments{
@@ -14,6 +14,8 @@ clFun(x, sg, nSigma, cl, type = "xbar")
   \item{nSigma}{ number of standard deviations from the center line}
   \item{cl}{ "u" or "l" respectively for upper or lower confidence limit}
   \item{type}{ type of control chart}
+  \item{mu}{A scalar containing the process mean. Its use will be different depending from chart type. For more details see \link{spc}.}
+  \item{sigma}{A scalar containing the process within samples standard deviation. For more details see \link{spc}.}
 }
 \details{
 clFun allows to handle unequal sample size subgroups that makes confidence limits to vary. A warning is thrown if subgroup dimension is less than 2 when variables chart for groups are calculated.

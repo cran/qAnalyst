@@ -3,7 +3,7 @@
 \title{ Internal function to perform control chart tests}
 \description{\code{testFun} executes control charts test.
 }
-\usage{testFun(x, sg, type, testType, k, p, nSigma)
+\usage{testFun(x, sg, type, testType, k, p, nSigma, mu = NA, sigma = NA)
 }
 
 \arguments{
@@ -39,6 +39,9 @@
   \item{k}{Parameter specific for the test. It is compulsory to be specified as a vector of length equal to length(testType). See details}
   \item{p}{Parameter specific for the test. it is compulsory to be specified as a vector of length equal to length(testType). See details}
   \item{nSigma}{ standard deviation of confidence line, required in some test.}
+  \item{mu}{A scalar containing the process mean. Its use will be different depending from chart type. For more details see \link{spc}.}
+  \item{sigma}{A scalar containing the process within samples standard deviation. For more details see \link{spc}.}
+
 }
 
 

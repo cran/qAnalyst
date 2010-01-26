@@ -42,7 +42,14 @@ function (object, ...)
     }
     cat("\n", "Control chart elements table", "\n", "------------------------------------------", 
         "\n")
-    centro = rep(spcObj$graphPars$center, spcObj$general$nGroupsX)
+
+    # If there is an unique center value (same number of observations for each subgroup) then repeat it for every points.
+    if(length(spcObj$graphPars$center)==1) {
+        centro = rep(spcObj$graphPars$center, spcObj$general$nGroupsX)
+    } else {
+        centro = spcObj$graphPars$center
+    }
+
     punti = as.vector(spcObj$graphPars$points)
     lcl3s = as.vector(spcObj$graphPars$lcl3)
     lcl2s = as.vector(spcObj$graphPars$lcl2)
