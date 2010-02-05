@@ -5,7 +5,8 @@
  \code{capabilityNormal} is used to compute capability analysis for normal distributed data. This function creates a capability class object for normal data. \code{plot}, \code{print} and \code{summary} methods are avaible for capability class objects.
 }
 \usage{
-capabilityNormal(x, sg=length(x), lsl = NULL, usl = NULL, target = NULL, name = deparse(substitute(x)), toler=6, historicalMean=NA, historicalSd=NA)
+capabilityNormal(x, sg=length(x), lsl = NULL, usl = NULL, target = NULL,
+    name = deparse(substitute(x)), toler=6, historicalMean=NA, historicalSd=NA)
 }
 
 \arguments{
@@ -30,7 +31,8 @@ capabilityNormal(x, sg=length(x), lsl = NULL, usl = NULL, target = NULL, name = 
 \seealso{ \code{\link{plot.capability}}, \code{\link{print.capability}}, \code{\link{summary.capability}} }
 \examples{
 data(brakeCap)
-capObj=capabilityNormal(x=brakeCap$hardness,sg=brakeCap$subgroup, lsl=39, usl=41, target=40,  name="HARDNESS")
+capObj=capabilityNormal(x=brakeCap$hardness,sg=brakeCap$subgroup, lsl=39,
+    usl=41, target=40,  name="HARDNESS")
 summary(capObj)
   }
 \keyword{ methods }

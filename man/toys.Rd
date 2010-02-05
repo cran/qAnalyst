@@ -29,7 +29,8 @@ This dataset can be use to plot different types of control charts. Fields "rejec
 }
 \examples{
 data(toys)
-npchart=spc(x=na.omit(toys$rejects), sg=na.omit(toys$inspected), type="np", name="Toys rejected")
+npchart=spc(x=na.omit(toys$rejects), sg=na.omit(toys$inspected), type="np",
+    name="Toys rejected")
 plot(npchart)
 }
 \keyword{datasets}

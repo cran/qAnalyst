@@ -24,7 +24,8 @@ Content of this dataset can be shown by p-chart.
 }
 \examples{
 data(tubes)
-pchart=spc(x=tubes$rejects, sg=tubes$sampled, type="p", name="proportion of defective tv tubes")
+pchart=spc(x=tubes$rejects, sg=tubes$sampled, type="p",
+    name="proportion of defective tv tubes")
 plot(tubes)
 }
 \keyword{datasets}

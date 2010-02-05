@@ -5,7 +5,8 @@
 \code{probplot} plots probability plot for a vector of values, given distribution specifications. Confidence intervals and a legend can be plot too.
 }
 \usage{
-probplot(x, distribution, theta, confintervals = FALSE, confidence = 0.95,  name = deparse(substitute(x)))
+probplot(x, distribution, theta, confintervals = FALSE,
+    confidence = 0.95,  name = deparse(substitute(x)))
 }
 \arguments{
   \item{x}{ a vector of values. }
@@ -27,7 +28,8 @@ probplot(x, distribution, theta, confintervals = FALSE, confidence = 0.95,  name
 \examples{
 data(warpTiles)
 
-probplot(x=warpTiles$warping,distribution="weibull", confintervals=TRUE, confidence=.95,  name="warping")
+probplot(x=warpTiles$warping,distribution="weibull", confintervals=TRUE,
+    confidence=.95,  name="warping")
 }
 \keyword{ methods }
 

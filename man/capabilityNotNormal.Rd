@@ -5,7 +5,8 @@
  \code{capabilityNotNormal} function creates capability class object for non - normal data given specification limits. \code{plot}, \code{print}, \code{summary} methods are avaible for capability class objects.
 }
 \usage{
-capabilityNotNormal(x,  lsl = NULL, usl = NULL, target = NULL, distribution, name = deparse(substitute(x)),  toler=6, histPars=c(NA,NA))
+capabilityNotNormal(x,  lsl = NULL, usl = NULL, target = NULL, distribution,
+    name = deparse(substitute(x)),  toler=6, histPars=c(NA,NA))
 }
 \arguments{
   \item{x}{ a numeric data vector.}
@@ -27,7 +28,8 @@ capabilityNotNormal(x,  lsl = NULL, usl = NULL, target = NULL, distribution, nam
 \seealso{ \code{\link{plot.capability}}, \code{\link{print.capability}}, \code{\link{summary.capability}} }
 \examples{
 data(warpTiles)
-capObj=capabilityNotNormal(x=warpTiles$warping, usl=8, target=40, distribution="weibull", name="warping")
+capObj=capabilityNotNormal(x=warpTiles$warping, usl=8, target=40, distribution="weibull",
+    name="warping")
 summary(capObj)
   }
 \keyword{ methods }

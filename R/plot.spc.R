@@ -11,7 +11,7 @@ function(x, cex = list(cexStrip=2, cexAxes=2, cexScales=2,cexPoints=1.5), ...) {
     } else {
         warningForPlot = ""
     }
-  ?title  
+  
     #graphical settings
     hStrip=2
     cexStrip = cex$cexStrip
@@ -19,7 +19,7 @@ function(x, cex = list(cexStrip=2, cexAxes=2, cexScales=2,cexPoints=1.5), ...) {
     cexScales = cex$cexScales
     cexPoints = cex$cexPoints
     texcexStrip=paste(spcObj$general$chartType,"chart of ", spcObj$general$xName)
-    options(warn=-1)
+    # options(warn=-1)
 
     #create the lattice object
     trellis.par.set('layout.heights', list (strip = hStrip))

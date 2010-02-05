@@ -5,7 +5,8 @@
 \code{summary.capability} implements generic summary method for capability class objects. A thorough report of performed analysis results is printed out. Three sections are printed: summary variables statistics, estimated ppm, capability index.
 }
 \usage{
-\method{summary}{capability}(object, printPotential = TRUE, printOverall = TRUE, printPerc = FALSE, printZeta = FALSE, \dots)
+\method{summary}{capability}(object, printPotential = TRUE, printOverall = TRUE, printPerc = FALSE,
+    printZeta = FALSE, \dots)
 }
 \arguments{
   \item{object}{ an object of capability obj }
@@ -29,7 +30,7 @@ No value is returned}
 data(brakeCap)
 x=brakeCap$hardness
 sg=brakeCap$subgroup
-capObj=capabilityNormal(x=x,sg=sg, lsl=39,usl=41, target=40,  name="example data")
+capObj=capabilityNormal(x=x, sg=sg, lsl=39, usl=41, target=40, name="example data")
 summary.capability(capObj)
 }
 \keyword{ methods }

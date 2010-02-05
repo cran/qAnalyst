@@ -1,28 +1,37 @@
 \name{qAnalyst-package}
+
 \alias{qAnalyst-package}
+
 \alias{qAnalyst}
+
 \docType{package}
+
 \title{Package to create and analyze control charts and to perform capability analysis}
+
 \description{Creates xbar, s, r, i, mr , p, np, c, u chart. Perform capability analysis for both normal and non normal data.}
+
 \details{
-\tabular{ll}{
-Package: \tab qAnalyst\cr
-Type: \tab Package\cr
-Version: \tab 0.5.1\cr
-Date: \tab 2008-02-12\cr
-License: \tab GPL -2\cr
+
+  \tabular{ll}{
+    Package: \tab qAnalyst\cr
+    Type: \tab Package\cr
+    Version: \tab 0.6.2\cr
+    Date: \tab 2009-02-05\cr
+    License: \tab GPL -2
+  }
+
+  Function \code{spc} and \code{capability} create objects of class \code{spc} and \code{capability} respectively.
+  Charts of type xbar, r, s, i, mr, p, np, c and may be handled by \code{spc} objects. 
+  Generic methods: plot, print and summary exist for \code{spc} and \code{capability} objects.
+
 }
 
-Function \code{spc} and \code{capability} create objects of class \code{spc} and \code{capability} respectively.
-Charts of type xbar, r, s, i, mr, p, np, c and may be handled by \code{spc} objects. 
-Generic methods: plot, print and summary exist for \code{spc} and \code{capability} objects.
-
-}
 \author{
-Andrea Spano' and Giorgio Spedicato
-Maintainer: \email{andrea.spano@quantide.com}
+Andrea Spano'
 
+Maintainer: Andrea Spano' \email{andrea.spano@quantide.com}
 }
+
 \references{
 Montgomery, Statistical Quality Control
 }

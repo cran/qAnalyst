@@ -29,10 +29,15 @@ function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)),
                 call. = FALSE, immediate. = TRUE)
         }
     }
-
+    
+    # if name is too long substitute create two vectors and plot will work in an unpredictable mode (revision 0.6.2, Enrico e Nicola)
+    if(length(name) > 1) {
+      name <- paste(name, collapse="")
+    }
+    
     # xbar and i charts: mu and sigma must be both provided (revision 0.6.1, Nicola)
     if((is.element(type,c("xbar","i"))) & (((!is.na(mu) && is.na(sigma))) || (is.na(mu) && !is.na(sigma)))) {
-        stop("mu and sigma must be both (or noone) provided")
+        stop("mu and sigma must be both (or neither) provided")
     }
 
     # s and r charts: only sigma should be provided (revision 0.6.1, Nicola)

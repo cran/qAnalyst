@@ -37,7 +37,8 @@ summary(hadnessSPCr)
 #process in control
 #ok for
 #capability analysis
-hadnessCap=capabilityNormal(x=brakeCap$hardness, sg=brakeCap$subgroup, lsl=39, usl=41, target=40.5, name="hardness")
+hadnessCap=capabilityNormal(x=brakeCap$hardness, sg=brakeCap$subgroup, lsl=39, usl=41, 
+    target=40.5, name="hardness")
 summary(hadnessCap)
 plot(hadnessCap)
 }

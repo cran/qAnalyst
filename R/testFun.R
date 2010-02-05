@@ -3,9 +3,8 @@ function(x, sg, type, testType , k, p,  nSigma, mu = NA, sigma = NA) {
 
 ###########################################################
 #verifies that test are between one and eight
-if (!all(is.element(testType, 1:8)))
-{
-stop ("Error! Test must be between 1 and 8")
+if (!all(is.element(testType, 1:8))) {
+  stop ("Error! Test must be between 1 and 8")
 }
 
 ###########################################################
@@ -33,12 +32,10 @@ if ((howManyTests>1) && all(c(length(nSigma), length(k), length(p)) == 1 )) {
 #checks parameters coherence
 k = ifelse(is.na(k), 0, k)
 p = ifelse(is.na(p), 0, p)
-nSigma = ifelse(is.na(nSigma), 0, nSigma)
 
 #if more than one tests, parameters shall be of same length
-if (!all(c(length(nSigma), length(k), length(p)) == length(testType))) 
-{
-stop("Error! testType, k, p and nSigma must be of same length")
+if (!all(c(length(nSigma), length(k), length(p)) == length(testType))) {
+  stop("Error! testType, k, p and nSigma must be of same length")
 }
 ############################################################
 #Ordering
@@ -69,9 +66,17 @@ matrixTest = matrix(0, ncol = length(testType), nrow = length(points))
 ############################################################
 
 #Define internal function
+.rollsumFun = function(x, range) {
+  x <- unclass(x)
+  n <- length(x) 
+  y <- x[range:n] - x[c(1, 1:(n-range))] # difference from previous
+  y[1] <- sum(x[1:range])		 # find the first
+  rval <- rep(0, n)
+  rval[range:n] <- cumsum(y)
+  return(rval)
+}
+
 .testFun = function(x, sg, testType, type , k, p, nSigma, points = points){
-
-
 
 #############################################################
 # procedure di inizializzazione generali
@@ -80,56 +85,65 @@ n = length(points)
 center = centerFun (x = x, sg= sg, type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
 center = rep(center, n)
 
+# Default value for nSigma and definition of Zone A, Zone B, Zone C     # (revision 0.6.2, Nicola)
+nSigma  = ifelse(is.na(nSigma), 3, nSigma)
 
+upperA = clFun(x=x, sg=sg, nSigma = nSigma, cl="u", type = type, mu = mu, sigma = sigma)
+lowerA = clFun(x=x, sg=sg, nSigma = nSigma, cl="l", type = type, mu = mu, sigma = sigma)
+upperB = center + ((2/3) * (upperA-center))
+lowerB = center + ((2/3) * (lowerA-center))
+upperC = center + ((1/3) * (upperA-center))
+lowerC = center + ((1/3) * (lowerA-center))
 
+  
 ############################################################
 # test 1
-# k points on k beyond zone A
-# default values: k = 1, p = 1, nSigma = 3
+# At least k out of p points in a row beyond Zone A (outside the control limits)
+# default values: k = p = 1, nSigma = 3
 ############################################################
-if (testType == 1) {
-    nSigma1 = ifelse(nSigma==0, 3, nSigma)
-    upper =  clFun(x=x, sg=sg, nSigma = nSigma1, cl="u", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
-    lower =  clFun(x=x, sg=sg, nSigma = nSigma1, cl="l", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
-    k = ifelse(k == 0, 1, k)
-    p = ifelse(p == 0, k, p)
+if (testType == 1) {                # revision 0.6.2, Nicola
+  # Default values
+  k = ifelse(k == 0, 1, k)
+  p = ifelse(p == 0, k, p)
 
-    if(p > n){stop("Error! p must be lower or equal than n")}
-    if(p < k){stop("Error! p shall be not lower than k")}
-    out = rep(0, n)
-
-    for(i in p:n) {
-        tested = ((i-p+1):i)
-        testUpper = ifelse(sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
-        testLower = ifelse(sum(ifelse(points[tested] < lower[tested], 1, 0)) >= k, 1, 0)
-        test = max(testUpper, testLower)
-        out[i] = test
-
-    }
-
+  # Check parameters coherence
+  if(p > n){stop("Error! p must be lower or equal than n")}
+  if(p < k){stop("Error! p shall be not lower than k")}
+  
+  # Perform test
+  onetest <- as.numeric(points < lowerA | points > upperA)
+  ptest   <- .rollsumFun(x=onetest, range = p)
+  out     <- as.numeric(ptest >= k)
+  
 }
 
 
 
 ############################################################
 # test 2
-# k points in a row on same side of centre line
-# default values: k = 9, p = 9, nSigma = 0
+# At least k out of p points in a row on one side of central line
+# default values: k = p = 9
 ############################################################
-if (testType == 2) {
-    k = ifelse(k == 0, 9, k)
-    p = ifelse(p == 0, k, p)
-    if(p > n) {stop("Error! p must be lower or equal than n")}
-    if(p < k) {stop("Error! p shall be not lower than k")}
-    out = rep(0, n)
+if (testType == 2) {                # revision 0.6.2, Nicola
+  # Default values
+  k = ifelse(k == 0, 9, k)
+  p = ifelse(p == 0, k, p)
+  
+  # Check parameters coherence
+  if(p > n) {stop("Error! p must be lower or equal than n")}
+  if(p < k) {stop("Error! p shall be not lower than k")}
 
-    for(i in p:n) {
-        tested = ((i-p+1):i)
-        testUpper = ifelse(sum(ifelse(points[tested] > center[tested], 1, 0)) >= k, 1, 0)
-        testLower = ifelse(sum(ifelse(points[tested] < center[tested], 1, 0)) >= k, 1, 0)
-        test = max(testUpper, testLower)
-        out[i] = test
-    }
+  # Perform test
+  # At least k out of p points in a row over central line
+  onetestOver  <- as.numeric(points > center)
+  ptestOver    <- .rollsumFun(x=onetestOver, range = p)
+  outOver      <- as.numeric(ptestOver >= k)
+  # At least k out of p points in a row under central line
+  onetestUnder <- as.numeric(points < center)
+  ptestUnder   <- .rollsumFun(x=onetestUnder, range = p)
+  outUnder     <- as.numeric(ptestUnder >= k)
+  # At least k out of points in a row on one side of central line
+  out          <- outOver + outUnder
 
 }
 
@@ -137,21 +151,29 @@ if (testType == 2) {
 
 ############################################################
 # test 3
-# k points on p in a row all increasing all decreasing
+# At least k out of p points in a row all increasing or all decreasing
 # default values: k = p = 6
 ############################################################
-if (testType == 3) {
-    k = ifelse(k == 0, 6, k)
-    p = ifelse(p == 0, k, p)
-    if(p > n){stop("Error! p must be lower or equal than n")}
-    if(p < k){stop("Error! p shall be not lower than k")}
-    out = rep(0, n)
-
-    for( i in p:n) {
-        tested = ((i-p+1):i)
-        test = ifelse(abs(sum(sign(diff(points[tested]))))==k-1,1,0)
-        out[i] = test
-    }
+if (testType == 3) {                # revision 0.6.2, Nicola
+  # Default values
+  k = ifelse(k == 0, 6, k)
+  p = ifelse(p == 0, k, p)
+  
+  # Check parameters coherence
+  if(p > n){stop("Error! p must be lower or equal than n")}
+  if(p < k){stop("Error! p shall be not lower than k")}
+  
+  # Perform test
+  # At least k out of p points in a row all increasing
+  onetestOver  <- as.numeric(points[1:n] > c(NA,points[1:(n-1)]))
+  ptestOver    <- .rollsumFun(x=onetestOver, range = p)
+  outOver      <- as.numeric(ptestOver >= k)
+  # At least k out of p points in a row all decreasing
+  onetestUnder <- as.numeric(points[1:n] < c(NA,points[1:(n-1)]))
+  ptestUnder   <- .rollsumFun(x=onetestUnder, range = p)
+  outUnder     <- as.numeric(ptestUnder >= k)
+  # At least k out of p points in a row all increasing or all decreasing
+  out          <- outOver + outUnder
 
 }
 
@@ -159,136 +181,133 @@ if (testType == 3) {
 
 ############################################################
 # test 4
-# at least k on p points in a row all up and down
-# default values: k = 14, p = 14
+# At least k out of p points in a row all up and down
+# default values: k = p = 14
 ############################################################
-if (testType ==4) {
-    k = ifelse(k == 0, 14,k)
-    p = ifelse(p == 0, 14,p)
-    if(p < 5){stop("Error! p must be greater than 4")}
-    if(p > n){stop("Error! p must be lower or equal than n")}
-    if(p < k){stop("Error! p must be greater or equal to k")}
+if (testType == 4) {                # revision 0.6.2, Nicola
+  # Default values
+  k = ifelse(k == 0, 14, k)
+  p = ifelse(p == 0, 14, p)
+  
+  # Check parameters coherence
+  if(p < 5){stop("Error! p must be greater than 4")}
+  if(p > n){stop("Error! p must be lower or equal than n")}
+  if(p < k){stop("Error! p must be greater or equal to k")}
 
-    out = rep(0, n)
-
-    for(i in p:n) {
-        tested = ((i-p+1):i)
-        zerone = rep.int(c(0,1), n)
-        length(zerone) = length(tested)-1
-        onezero = rep.int(c(1,0), n)
-        length(onezero) = length(tested)-1
-        test = ifelse(diff(points[tested]) > 0 , 1, 0)
-        test = ifelse(sum(test - zerone) == 0 | sum(test - onezero) == 0 , 1, 0)
-        out[i] = test
-    }
-
+  # Perform test
+  plusminus <- c(rep(c(1,-1),trunc((n-1)/2)),rep( 1,ceiling(((n-1)/2)-trunc((n-1)/2))))
+  minusplus <- c(rep(c(-1,1),trunc((n-1)/2)),rep(-1,ceiling(((n-1)/2)-trunc((n-1)/2))))
+  oneTestPM <- as.numeric(sign(diff(points))*plusminus == 1)
+  oneTestMP <- as.numeric(sign(diff(points))*minusplus == 1)
+  onetest   <- c(oneTestPM + oneTestMP)
+  ptest     <- .rollsumFun(x=onetest, range = p)
+  out       <- c(0,as.numeric(ptest >= k))
+  
 }
 
 
 
 ############################################################
 # test 5
-# k out of p point in a row beyond zone A (nSigma=3)
+# At least k out of p points in a row in Zone A or beyond (> (2/3)*nSigma*sigma from central line; same side of central line)
 # default values: k = 2, p = 3, nSigma = 3
 ############################################################
-if (testType == 5) {
-    nSigma5 = ifelse(nSigma==0,3,nSigma)
-    k = ifelse(k == 0, 2, k)
-    p = ifelse(p == 0, k+1, p)
-    upper =  clFun (x=x, sg=sg, nSigma = nSigma5, cl="u", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
-    lower =  clFun (x=x, sg=sg, nSigma = nSigma5, cl="l", type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+if (testType == 5) {                # revision 0.6.2, Nicola
+  # Default values
+  k = ifelse(k == 0, 2, k)
+  p = ifelse(p == 0, k+1, p)
 
-    if(p > n){stop("Error! p must be lower or equal than n")}
-    if(p < k){stop("Error! p shall be not lower than k")}
-    out = rep(0, n)
+  # Check parameters coherence
+  if(p > n){stop("Error! p must be lower or equal than n")}
+  if(p < k){stop("Error! p shall be not lower than k")}
+ 
+  # Perform test
+  # At least k out of p points in a row in Zone A or beyond (over central line)
+  onetestOver  <- as.numeric(points > upperB)
+  ptestOver    <- .rollsumFun(x=onetestOver, range = p)
+  outOver      <- as.numeric(ptestOver >= k)
+  # At least k out of p points in a row in Zone A or beyond (under central line)
+  onetestUnder <- as.numeric(points < lowerB)
+  ptestUnder   <- .rollsumFun(x=onetestUnder, range = p)
+  outUnder     <- as.numeric(ptestUnder >= k)
+  # At least k out of p points in a row in Zone A or beyond (same side of the central line)
+  out          <- outOver + outUnder
 
-    for(i in p:n) {
-        tested = ((i-p+1):i)
-
-        testUpper = ifelse(sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
-        testLower = ifelse(sum(ifelse(points[tested] < lower[tested], 1, 0)) >= k, 1, 0)
-        test = max(testUpper, testLower)
-        out[i] = test
-    }
 }
 
 
 
 ############################################################
 # test 6
-# k out of p points in a row in zone B or beyond (one side of center line)
-# default values: k = 4, p = 5, nSigma = 2
+# At least k out of p points in a row in Zone B or beyond (> (1/3)*nSigma*sigma from central line; on one side of central line)
+# default values: k = 4, p = 5, nSigma = 3
 ############################################################
-if (testType == 6) {
-    nSigma6=ifelse(nSigma==0, 2, nSigma)
-    k = ifelse(k == 0, 4, k)
-    p = ifelse(p == 0, k+1, p)
-    upper =  clFun (x=x, sg=sg, nSigma = nSigma6, cl="u" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
-    lower =  clFun (x=x, sg=sg, nSigma = nSigma6, cl="l" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
+if (testType == 6) {                # revision 0.6.2, Nicola
+  # Default values
+  k = ifelse(k == 0, 2, k)
+  p = ifelse(p == 0, k+1, p)
 
-    if(p > n){stop("Error! p must be lower or equal than n")}
-    if(p < k){stop("Error! be not lower than k")}
-    out = rep(0, n)
-
-    for(i in p:n) {
-        tested = ((i-p+1):i)
-        testUpper = ifelse(sum(ifelse(points[tested] > upper[tested], 1, 0)) >= k, 1, 0)
-        testLower = ifelse(sum(ifelse(points[tested] < lower[tested], 1, 0)) >= k, 1, 0)
-        test = max(testUpper, testLower)
-        out[i] = test
-    }
+  # Check parameter coherence
+  if(p > n){stop("Error! p must be lower or equal than n")}
+  if(p < k){stop("Error! p shall be not lower than k")}
+  
+  # Perform test
+  # At least k out of p points in a row in Zone B or beyond (over central line)
+  onetestOver  <- as.numeric(points > upperC)
+  ptestOver    <- .rollsumFun(x=onetestOver, range = p)
+  outOver      <- as.numeric(ptestOver >= k)
+  # At least k out of p points in a row in Zone B or beyond (under central line)
+  onetestUnder <- as.numeric(points < lowerC)
+  ptestUnder   <- .rollsumFun(x=onetestUnder, range = p)
+  outUnder     <- as.numeric(ptestUnder >= k)
+  # At least k out of p points in a row in Zone B or beyond (same side of the central line)
+  out          <- outOver + outUnder
+  
 }
 
 
 
 ############################################################
 # test 7
-# k points on p in a row within zone C (both sides of centre line)
-# default values: p = k = 15, nSigma = 1
+# At least k out of p points in a row in Zone C (both sides of central line)
+# default values: p = k = 15, nSigma = 3
 ############################################################
 if (testType==7) {
-    #nSigma per questo test dovrebbe essere 1! Il codice e uguale a sopra
-    nSigma7 = ifelse(nSigma==0,1,nSigma)
-    upper =  clFun (x=x, sg=sg, nSigma = nSigma7, cl="u" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
-    lower =  clFun (x=x, sg=sg, nSigma = nSigma7, cl="l" ,type = type, mu = mu, sigma = sigma) # (revision 0.6.1, Nicola)
-    k = ifelse(k == 0, 15, k)
-    p = ifelse(p == 0, k, p)
+  # Default values
+  k = ifelse(k == 0, 15, k)
+  p = ifelse(p == 0, k, p)
 
-    if(p > n){stop("Error! p must be lower or equal than n")}
-    if(p < k){stop("Error! p shall be not lower than k")}
-    out = rep(0, n)
+  # Check parameters coherence
+  if(p > n){stop("Error! p must be lower or equal than n")}
+  if(p < k){stop("Error! p shall be not lower than k")}
 
-    for( i in p:n) {
-        tested = ((i-p+1):i)
-        test = sum(ifelse(((points[tested] >= lower[tested]) &  (points[tested] <= upper[tested])) , 1, 0))
-        test = ifelse(test >= k , 1, 0)
-        out[i] = test
-    }
+  # Perform test
+  onetest <- as.numeric(points < upperC & points > lowerC)
+  ptest   <- .rollsumFun(x=onetest, range = p)
+  out     <- as.numeric(ptest >= k)
+
 }
 
 
 
 ############################################################
 # test 8
-# k points in a row beyond zone C (both sides of central line)
-# default values: p = k = 8, nSigma = 1
+# At least k out of p points in a row with no one in Zone C
+# default values: p = k = 8, nSigma = 3
 ############################################################
 if (testType==8) {
-    nSigma8 = ifelse(nSigma==0,1,nSigma)
-    upper =  clFun (x=x, sg=sg, nSigma = nSigma8, cl="u" ,type = type, mu = mu, sigma = sigma)
-    lower =  clFun (x=x, sg=sg, nSigma = nSigma8, cl="l" ,type = type, mu = mu, sigma = sigma)
-    k = ifelse(k == 0, 8, k)
-    p = ifelse(p == 0, k, p)
-    if(p > n){stop("Error! p must be lower or equal than n")}
-    if(p < k){stop("Error! p shall be not lower than k")}
-    out = rep(0, n)
-
-    for( i in p:n) {
-        tested = ((i-p+1):i)
-        test = sum(ifelse(points[tested] > upper[tested] | points[tested] < lower[tested] , 1, 0))
-        test = ifelse(test >= k , 1, 0)
-        out[i] = test
-    }
+  # Default values
+  k = ifelse(k == 0, 8, k)
+  p = ifelse(p == 0, k, p)
+  
+  # Check parameters coherence
+  if(p > n){stop("Error! p must be lower or equal than n")}
+  if(p < k){stop("Error! p shall be not lower than k")}
+  
+  # Perform test
+  onetest <- as.numeric(points < lowerC | points > upperC)
+  ptest   <- .rollsumFun(x=onetest, range = p)
+  out     <- as.numeric(ptest >= k)
 
 }
 
