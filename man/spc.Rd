@@ -13,8 +13,8 @@
 
 
 \usage{
-  spc(x, sg, type = "xbar", name = deparse(substitute(x)), testType = 1, 
-      k = NA, p = NA, nSigma = NA, mu = NA, sigma = NA)
+  spc(x, sg = NULL, type = "xbar", xbarVariability = "auto", name = deparse(substitute(x)), testType = 1, 
+      k = NA, p = NA, nSigma = 3, mu = NA, sigma = NA)
 }
 
 
@@ -35,6 +35,17 @@
   }
 
   \item{type}{Chart type. String identifying chart type. Charts can be of type: "xbar", "r", "s", "i", "mr", "p", "np", "u", "c".}
+
+  \item{xbarVariability}{
+    How to compute variability for xbar charts.
+
+    \code{"auto"}: (default) use the ranges if all subgroups have the same numerosity, and it is less than 7; otherwise it use the standard deviations.
+
+    \code{"r"}   : use the ranges for the variaibility of the xbar charts.
+
+    \code{"s"}   : use the standard deviations for the variability of the xbar charts.
+  
+  }
 
   \item{name}{Name of x variable as it appears in the charts. By default the name of the given x variable.}
 

@@ -1,5 +1,5 @@
 `testFun` <- 
-function(x, sg, type, testType , k, p,  nSigma, mu = NA, sigma = NA) {
+function(x, sg, type, xbarVariability, testType, k, p,  nSigma, mu = NA, sigma = NA) {
 
 ###########################################################
 #verifies that test are between one and eight
@@ -68,6 +68,7 @@ matrixTest = matrix(0, ncol = length(testType), nrow = length(points))
 #Define internal function
 .rollsumFun = function(x, range) {
   x <- unclass(x)
+  x[is.na(x)] <- 0
   n <- length(x) 
   y <- x[range:n] - x[c(1, 1:(n-range))] # difference from previous
   y[1] <- sum(x[1:range])		 # find the first
@@ -88,14 +89,13 @@ center = rep(center, n)
 # Default value for nSigma and definition of Zone A, Zone B, Zone C     # (revision 0.6.2, Nicola)
 nSigma  = ifelse(is.na(nSigma), 3, nSigma)
 
-upperA = clFun(x=x, sg=sg, nSigma = nSigma, cl="u", type = type, mu = mu, sigma = sigma)
-lowerA = clFun(x=x, sg=sg, nSigma = nSigma, cl="l", type = type, mu = mu, sigma = sigma)
-upperB = center + ((2/3) * (upperA-center))
-lowerB = center + ((2/3) * (lowerA-center))
-upperC = center + ((1/3) * (upperA-center))
-lowerC = center + ((1/3) * (lowerA-center))
+upperA = clFun(x=x, sg=sg, nSigma = nSigma, cl="u", type = type, xbarVariability = xbarVariability, mu = mu, sigma = sigma)
+lowerA = clFun(x=x, sg=sg, nSigma = nSigma, cl="l", type = type, xbarVariability = xbarVariability, mu = mu, sigma = sigma)
+upperB = center + (2/3)*(upperA-center)
+lowerB = center + (2/3)*(lowerA-center)
+upperC = center + (1/3)*(upperA-center)
+lowerC = center + (1/3)*(lowerA-center)
 
-  
 ############################################################
 # test 1
 # At least k out of p points in a row beyond Zone A (outside the control limits)
@@ -114,7 +114,6 @@ if (testType == 1) {                # revision 0.6.2, Nicola
   onetest <- as.numeric(points < lowerA | points > upperA)
   ptest   <- .rollsumFun(x=onetest, range = p)
   out     <- as.numeric(ptest >= k)
-  
 }
 
 

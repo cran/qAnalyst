@@ -1,56 +1,69 @@
 `spc` <-
-function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)), 
-    testType = 1, k = NA, p = NA, nSigma = NA, mu = NA, sigma = NA) {
+function (x, sg = NULL, type = "xbar", xbarVariability = "auto", name = deparse(substitute(x)), 
+    testType = 1, k = NA, p = NA, nSigma = 3, mu = NA, sigma = NA) {
 
     type = switchFun(argument = type, type = "chart")
-    if (!is.element(type, c("xbar", "s", "r", "i", "mr", "p", 
-        "np", "c", "u"))) 
+    if (!is.element(type, c("xbar", "s", "r", "i", "mr", "p", "np", "c", "u"))) {
         stop("Error! Unrecognized chart")
-    if ((is.null(sg)) && (!type == "c")) 
-        stop("Error! Sg is always required with the exception of c charts")
-    if (!is.numeric(x)) 
+    }
+    if (!is.element(xbarVariability, c("auto", "r", "s"))) {
+        stop("Error! Unrecognized variability type for xbar chart")
+    }
+    if ((is.null(sg)) && (!type == "c"))  {
+        stop("Error! sg is always required with the exception of c charts")
+    }
+    if (!is.numeric(x)) {
         stop("Error! x is not numeric")
+    }
     if (is.element(type, c("i", "mr"))) {
         sg = sg - 1
         if (sg < 1) 
             stop("Error! width of the moving range window must be at least equal to 2")
     }
+    
     sg = sgFun(x = x, sg = sg, type = type)
+    
     if (is.element(type, c("xbar", "s", "r"))) {
         sgSize = as.numeric(tapply(x, sg, countFun))
         # At least one subgroup with only an observation
         sgSizeTest = ifelse(sgSize > 1, 1, 0)
-        if (sum(sgSizeTest) < length(sgSizeTest)) 
+        if (sum(sgSizeTest) < length(sgSizeTest)) {
             warning("At least one subgroup with dimension lower than 2 in a variable chart for subgroups", 
                 call. = FALSE, immediate. = TRUE)
-        # Different sample size (revision 0.6.1, Nicola)
-        if((diff(range(sgSize)) >= 1) && (type=="r")) {
+        }
+        # Different sample size (chart Xbar) (release 0.6.2, Nicola)
+        if(((max(sgSize)-min(sgSize)) >= 1) && (type == "xbar") && (xbarVariability == "r")) {
+            warning("Variable sample size. Each sample has a different number of observations. It is suggested the use of \"s\" (or \"auto\") for xbarVariability", 
+                call. = FALSE, immediate. = TRUE)
+        }
+        # Different sample size (chart R) (release 0.6.1, Nicola)
+        if(((max(sgSize)-min(sgSize)) >= 1) && (type == "r")) {
             warning("Variable sample size. Each sample has a different number of observations. R chart may be difficult to interpret: S chart would be preferable.", 
                 call. = FALSE, immediate. = TRUE)
         }
     }
     
-    # if name is too long substitute create two vectors and plot will work in an unpredictable mode (revision 0.6.2, Enrico e Nicola)
+    # if name is too long substitute create two vectors and plot will work in an unpredictable mode (release 0.6.2, Enrico e Nicola)
     if(length(name) > 1) {
       name <- paste(name, collapse="")
     }
     
-    # xbar and i charts: mu and sigma must be both provided (revision 0.6.1, Nicola)
+    # xbar and i charts: mu and sigma must be both provided (release 0.6.1, Nicola)
     if((is.element(type,c("xbar","i"))) & (((!is.na(mu) && is.na(sigma))) || (is.na(mu) && !is.na(sigma)))) {
         stop("mu and sigma must be both (or neither) provided")
     }
 
-    # s and r charts: only sigma should be provided (revision 0.6.1, Nicola)
+    # s and r charts: only sigma should be provided (release 0.6.1, Nicola)
     if((is.element(type,c("s", "r", "mr"))) & (!is.na(mu))) {
         warning(paste("only sigma should be provided in the",type,"chart: mu ignored"), call. = FALSE, immediate. = TRUE)
     }
     
-    # s, r, mr, p, np, c and u charts: only mu should be provided (revision 0.6.1, Nicola)
+    # s, r, mr, p, np, c and u charts: only mu should be provided (release 0.6.1, Nicola)
     if((is.element(type,c("p", "np", "c", "u"))) & (!is.na(sigma))) {
         warning(paste("only mu should be provided in the",type,"chart: sigma ignored"), call. = FALSE, immediate. = TRUE)
     }
 
-    # sigma must be positive  (revision 0.6.1, Nicola)
+    # sigma must be positive  (release 0.6.1, Nicola)
     if(!is.na(sigma) && sigma <= 0) {
         stop("sigma must be positive")
     }
@@ -67,22 +80,22 @@ function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)),
     }
     center[is.na(points)] <- NA  # center line is NA when the point is NA
     
-    nSigmaForTests=rep(NA,length(testType)) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    nSigmaForTests[c(testType) %in% c(1,5)] = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3, max(c(nSigma)[c(testType) %in% c(1,5)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    nSigmaForTests[c(testType) %in% c(6)]   = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0   || is.na(nSigma), 2, max(c(nSigma)[c(testType) %in% c(6)]))    # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-    nSigmaForTests[c(testType) %in% c(7,8)] = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1, max(c(nSigma)[c(testType) %in% c(7,8)]))  # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
-
-    ucl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3, max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "u", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    nSigmaForTests = rep(nSigma, length(testType)) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    
+    ucl3 = clFun(x = x, sg = sg, nSigma = nSigma, cl = "u", type = type, xbarVariability = xbarVariability, mu = mu, sigma = sigma)
+    if(length(ucl3)==1) {ucl3 <- rep(ucl3, length(points))}
     ucl3[is.na(points)] <- NA # if point is NA then confidence limit is also NA
-    lcl3 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(1,5)])==0 || is.na(nSigma), 3, max(c(nSigma)[c(testType) %in% c(1,5)])), cl = "l", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl3 = clFun(x = x, sg = sg, nSigma = nSigma, cl = "l", type = type, xbarVariability = xbarVariability, mu = mu, sigma = sigma)
+    if(length(lcl3)==1) {lcl3 <- rep(lcl3, length(points))}
     lcl3[is.na(points)] <- NA # if point is NA then confidence limit is also NA
-    ucl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0   || is.na(nSigma), 2, max(c(nSigma)[c(testType) %in% c(6)])),   cl = "u", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    
+    ucl2 = center + (2/3)*(ucl3-center)
     ucl2[is.na(points)] <- NA # if point is NA then confidence limit is also NA
-    lcl2 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(6)])==0   || is.na(nSigma), 2, max(c(nSigma)[c(testType) %in% c(6)])),   cl = "l", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl2 = center - (2/3)*(center-lcl3)
     lcl2[is.na(points)] <- NA # if point is NA then confidence limit is also NA
-    ucl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1, max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "u", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    ucl1 = center + (1/3)*(ucl3-center)
     ucl1[is.na(points)] <- NA # if point is NA then confidence limit is also NA
-    lcl1 = clFun(x = x, sg = sg, nSigma = ifelse(length(c(nSigma)[c(testType) %in% c(7,8)])==0 || is.na(nSigma), 1, max(c(nSigma)[c(testType) %in% c(7,8)])), cl = "l", type = type, mu=mu, sigma=sigma) # Modifica della chiamata alla procedura per permettere generazione corretta delle carte con nSigma non standard (3). release 0.5.4 Pgo *****
+    lcl1 = center - (1/3)*(center-lcl3)
     lcl1[is.na(points)] <- NA # if point is NA then confidence limit is also NA
     
     # Limits for plot
@@ -95,7 +108,7 @@ function (x, sg = NULL, type = "xbar", name = deparse(substitute(x)),
         resultsOfTest$colorSet = "#40f907"
         resultsOfTest$testMatrix = NULL
     } else {
-        resultsOfTest = testFun(x = x, sg = sg, type = type, testType = testType, nSigma = nSigma, k = k, p = p, mu = mu, sigma = sigma)
+        resultsOfTest = testFun(x = x, sg = sg, type = type, testType = testType, xbarVariability = xbarVariability, nSigma = nSigma, k = k, p = p, mu = mu, sigma = sigma)
     }
     ylim = limitsFun(list(points[!is.na(points)], ucl3[ucl3<Inf], lcl3[lcl3>-Inf]))
     ylab = ylabFun(xName, type = type)

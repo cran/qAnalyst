@@ -13,7 +13,7 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
       center = mean(x, na.rm = TRUE)
     } 
 
-    # second case: mu is provided (revision 0.6.1, Nicola)
+    # second case: mu is provided (release 0.6.1, Nicola)
     else {
       center = mu
     }
@@ -26,12 +26,29 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
 
     # first case: sigma is not provided (as in release 0.6.0)	
     if (is.na(sigma)) {
-      rangesCampionari = tapply(x,sg,rFun)
-      rangesCampionari[is.nan(rangesCampionari)] = NA
-      center = mean(rangesCampionari, na.rm=TRUE)
+      sgSize = tapply(x,sg,countFun)
+      
+      # first case: all subgroups have the same numerosity (as in release 0.6.0)
+      if((max(sgSize)-min(sgSize)) == 0) {
+        rangesCampionari = tapply(x,sg,rFun)
+        rangesCampionari[is.nan(rangesCampionari)] = NA
+        center = mean(rangesCampionari, na.rm=TRUE)
+      }
+      
+      # second case: all subgroups don't have the same numerosity (release 0.6.2, Nicola)
+      else {
+        sdCampionari = tapply(x,sg,sd,na.rm=TRUE)
+        sdCampionari[is.nan(sdCampionari)] = NA
+        sgSize = tapply(x,sg,countFun)
+        numFormula = sum(sdCampionari^2*(sgSize-1),na.rm=TRUE)
+        m = length(unique(sg))
+        denFormula = sum(sgSize)-m
+        sigma = (numFormula/denFormula)^0.5
+        center = sigma * getCoeffFun(sgSize, "d2")
+      }
     } 
 
-    # second case: sigma is provided (revision 0.6.1, Nicola)
+    # second case: sigma is provided (release 0.6.1, Nicola)
     else {
       sgSize = table(sg)                                                     # size of each subgroups
       center = sigma * getCoeffFun(sgSize, "d2")                             # compute center line
@@ -45,12 +62,17 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
 
     # first case: sigma is not provided (as in release 0.6.0)	
     if (is.na(sigma)) {
-      rangesCampionari = tapply(x,sg,rFun)
-      rangesCampionari[is.nan(rangesCampionari)] = NA
-      center = mean(rangesCampionari, na.rm=TRUE)
+      sdCampionari = tapply(x,sg,sd,na.rm=TRUE)
+      sdCampionari[is.nan(sdCampionari)] = NA
+      sgSize = tapply(x,sg,countFun)
+      # montgomery pp 189
+      numFormula = sum(sdCampionari^2*(sgSize-1),na.rm=TRUE)
+      m = length(unique(sg))
+      denFormula = sum(sgSize)-m
+      center = (numFormula/denFormula)^0.5
     }
 
-    # second case: sigma is provided (revision 0.6.1, Nicola)
+    # second case: sigma is provided (release 0.6.1, Nicola)
     else {
       sgSize = table(sg)                                                     # size of each subgroups
       center = sigma * getCoeffFun(sgSize, "c4")                             # compute center line
@@ -67,7 +89,7 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
       center = mean(na.omit(x))
     }
 
-    # second case: mu is provided (revision 0.6.1, Nicola)
+    # second case: mu is provided (release 0.6.1, Nicola)
     else {
       center = mu        
     }
@@ -87,7 +109,7 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
       #center=center/d2
     } 
 
-    # second case: sigma is provided (revision 0.6.1, Nicola)
+    # second case: sigma is provided (release 0.6.1, Nicola)
     else {
       d2 = getCoeffFun(sg+1, "d2")
       center = sigma * d2
@@ -109,7 +131,7 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
       center=pLine
     }
 
-    # second case: mu is provided (revision 0.6.1, Nicola)
+    # second case: mu is provided (release 0.6.1, Nicola)
     else {
       center = mu
     }
@@ -126,7 +148,7 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
       center = mean(na.omit(x))
     }
 
-    # second case: mu is provided (revision 0.6.1, Nicola)
+    # second case: mu is provided (release 0.6.1, Nicola)
     else {
       center = mu
     }
@@ -143,7 +165,7 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
       center = mean(na.omit(x))
     }
 
-    # second case: mu is provided (revision 0.6.1, Nicola)
+    # second case: mu is provided (release 0.6.1, Nicola)
     else {
       center = mu
     }
@@ -163,7 +185,7 @@ function(x, sg, type = "xbar", mu=NA, sigma=NA) {
       center=uLine
     }
 
-    # second case: mu is provided (revision 0.6.1, Nicola)
+    # second case: mu is provided (release 0.6.1, Nicola)
     else {
       center = mu
     }

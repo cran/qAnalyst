@@ -72,4 +72,11 @@ Version 0.62 provided the following enhancements:
 Some performace enhancements.
 Small bugs correction.
 
+################################################################################################################################################################################################
+Version 0.63 provided the following enhancements:
+
+Some performace enhancements.
+New option 'xbarVariability' for xbar chart. It permits to choice if use range or standard deviation as variability measure.
+Bugs correction.
+
 ################################################################################################

@@ -1,5 +1,5 @@
 `clFun` <-
-function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
+function(x, sg, nSigma, cl, type = "xbar", xbarVariability = "auto", mu=NA, sigma=NA) {
 
   #if not "u" or "l" stops
   if(!is.element(cl, c("u", "l"))) {stop("Error! cl must be either u or l")}
@@ -8,48 +8,53 @@ function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
   # xbar Chart
   if(type == "xbar") {
 
-    # first case: mu and sigma are both not provided (as in release 0.6.0)
+    # first case: mu and sigma are both not given (release 0.6.3, Nicola)
     if(is.na(mu) && is.na(sigma)) {
-      xbar = tapply(x, sg, mean, na.rm = TRUE)
-      #considers missing value
-      xbar[is.nan(xbar)]=NA
-      xbarbar = mean(x, na.rm = TRUE)
-      #waring is sg<2
+      center = mean(x, na.rm = TRUE)
+      
       sgSize = as.numeric(tapply(x, sg, countFun))
-      #care confidence limits
-      #sg below 7 R else sg
-      sgMean=mean(sgSize,na.rm=TRUE)
-      #sg below 8
-      if (sgMean<7) {
-        r = tapply(x, sg, rFun)
-        rbar = mean(r,na.rm=TRUE)
-        d2 = getCoeffFun(sgSize, "d2")
-        #returns limits vecotr
-        if(cl == "u") clout = xbarbar + (nSigma*rbar)/(d2*sqrt(sgSize))
-        if(cl == "l") clout = xbarbar - (nSigma*rbar)/(d2*sqrt(sgSize))
+      
+      # define "auto" (use R if all subgroups have the same numerosity less then 7; otherwise use S)
+      if(xbarVariability == "auto") {
+	if (((max(sgSize)-min(sgSize)) == 0) & (sgSize[1] < 7)) {
+	  xbarVariability = "r"
+	} else {
+	  xbarVariability = "s"
+	}
       }
-      #caso due: uso S per la  variabilita
-      else {
-        sbar=centerFun(x=x,sg=sg,type="s")
-        A3 = getCoeffFun(sgSize, "A3")
-        if(cl == "u") clout = xbarbar + (nSigma*(A3/3))*sbar
-        if(cl == "l") clout = xbarbar - (nSigma*(A3/3))*sbar
+      
+      # first subcase: use R for variability
+      if (xbarVariability == "r") {
+        rbar = centerFun(x=x, sg=sg, type="r")
+	A2 = (nSigma/3) * getParameterFun(sgSize[1], "A2")
+	# returns limits    
+        if(cl == "u") clout = center + A2*rbar                                   # upper confidence limit (Montgomery, pag. 182)
+        if(cl == "l") clout = center - A2*rbar                                   # lower confidence limit (Montgomery, pag. 182)
+      }
+
+      # second subcase: use S for variability
+      if (xbarVariability == "s") {
+        sbar = centerFun(x=x, sg=sg, type="s")
+        A3 = (nSigma/3) * getCoeffFun(sgSize, "A3")
+	# returns limits
+        if(cl == "u") clout = center + A3*sbar                                   # upper confidence limit (Montgomery, pag. 215)
+        if(cl == "l") clout = center - A3*sbar                                   # lower confidence limit (Montgomery, pag. 215)
       }
     }
 
-    # second case: mu and sigma are both provided (release 0.6.1, Nicola)
+    # second case: mu and sigma are both given (release 0.6.1, Nicola)
     if(!is.na(mu) && !is.na(sigma)) {
-      sgSize = as.numeric(tapply(x, sg, countFun))            # size of each subgroups
-      if(cl == "u") clout = mu + nSigma*(sigma/sqrt(sgSize))  # upper confidence limit
-      if(cl == "l") clout = mu - nSigma*(sigma/sqrt(sgSize))  # lower confidence limit
+      sgSize = as.numeric(tapply(x, sg, countFun))                               # size of each subgroups
+      if(cl == "u") clout = mu + (nSigma/sqrt(sgSize))*sigma                     # upper confidence limit (Montgomery, pag. 201)
+      if(cl == "l") clout = mu - (nSigma/sqrt(sgSize))*sigma                     # lower confidence limit (Montgomery, pag. 201)
     }
 
-    # third case: mu is provided, sigma not
+    # third case: mu is given, sigma not
     if(!is.na(mu) && is.na(sigma)) {
       print('TO BE IMPLEMENTED') # TO BE IMPLEMENTED
     }
 
-    # fourth case: sigma is provided, mu not
+    # fourth case: sigma is given, mu not
     if(is.na(mu) && !is.na(sigma)) {
       print('TO BE IMPLEMENTED') # TO BE IMPLEMENTED
     }
@@ -58,40 +63,39 @@ function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
 
 
   # r Chart
-  if(type=="r") {
+  if(type == "r") {
 
-    # first case: sigma is not provided (as in release 0.6.0)
-    if(is.na(mu) && is.na(sigma)) {
-        xbar = tapply(x, sg, mean, na.rm = TRUE)
-        xbar[is.nan(xbar)]=NA
-        r = tapply(x, sg, rFun)
-        #check estimator r bar variable sample dim
-        r[is.nan(r)]=NA
-        rbar = mean(r,na.rm=TRUE)
-        xbarbar = mean(x, na.rm = TRUE)
-        sgSize = tapply(x, sg, countFun)
-        #da Montgomery pp 157  where 3 = nSigma
-        d3 = getCoeffFun(sgSize, "d3")
-        d2 = getCoeffFun(sgSize, "d2")
-        D4 = (1+nSigma*d3/d2)
-        D3 = (1-nSigma*d3/d2)
-        #limits
-        UCL=D4*rbar
-        LCL=ifelse(D3*rbar>0,D3*rbar,0)
-        if(cl == "u") clout = UCL
-        if(cl == "l") clout = LCL
+    # first case: sigma is not given (release 0.6.3, Nicola)
+    if(is.na(sigma)) {
+      center = centerFun(x, sg, type = "r", mu=mu, sigma=sigma)                  # compute center line
+      sgSize = table(sg)
+      d2 = getCoeffFun(sgSize, "d2")
+      d3 = getCoeffFun(sgSize, "d3")
+      D3 = 1 - nSigma*(d3/d2)
+      D4 = 1 + nSigma*(d3/d2)
+      if(cl == "u") {
+          clout = D4 * center                                                    # upper confidence limit (Montgomery, page 183)
+          clout[clout < 0] = 0                                                   # confidence limit cannot be less than 0
+        }
+      if(cl == "l") {
+          clout = D3 * center                                                    # lower confidence limit (Montgomery, page 183)
+          clout[clout < 0] = 0                                                   # confidence limit cannot be less than 0
+        }
     }
 
-    # second case: sigma is provided (release 0.6.1, Nicola)
-    if(!is.na(mu) && !is.na(sigma)) {
+    # second case: sigma given (release 0.6.1, Nicola)
+    if(!is.na(sigma)) {
 	sgSize = table(sg)
-        center = centerFun(x, sg, type = "r", mu=mu, sigma=sigma)                  # compute center line
+        d2 = getCoeffFun(sgSize, "d2")
+	d3 = getCoeffFun(sgSize, "d3")
+	D1 = d2 - nSigma*d3
+	D2 = d2 + nSigma*d3
         if(cl == "u") {
-          clout = center + nSigma*getParameterFun(sgSize, "d3")*sigma            # upper confidence limit (Montgomery, page 201)
+          clout = D2 * sigma                                                     # upper confidence limit (Montgomery, page 201)
           clout[clout < 0] = 0                                                   # confidence limit cannot be less than 0
         }
         if(cl == "l") {
-          clout = center - nSigma*getParameterFun(sgSize, "d3")*sigma            # lower confidence limit (Montgomery, page 201)
+          clout = D1 * sigma                                                     # lower confidence limit (Montgomery, page 201)
           clout[clout < 0] = 0                                                   # confidence limit cannot be less than 0
         }
     }
@@ -100,29 +104,46 @@ function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
 
 
   # s chart
-  if(type=="s") {
-    #SBAR estimation
-    sdCampionari= tapply(x,sg,sd,na.rm=TRUE)
-    sdCampionari[is.na(sdCampionari)]=NA
-    sgSize = tapply(x,sg,countFun)
-    #formula montgomery pp 189
-    numFormula=sum(sdCampionari^2*(sgSize-1),na.rm=TRUE)
-    m=length(unique(sg))
-    denFormula=sum(sgSize,na.rm=TRUE)-m
-    sbar=(numFormula/denFormula)^0.5
-    #Montgomery uses 3 sigma
-    # here we use B3 and B4
-    c4 = getCoeffFun(sgSize, "c4")
-    costSup=(1+(nSigma/c4)*(sqrt(1-c4^2)))
-    costInf=(1-(nSigma/c4)*(sqrt(1-c4^2)))
-    #limits
-    if(cl == "u") { clout=sbar*costSup; clout=ifelse(clout>0,clout,0)}
-    if(cl == "l") { clout=sbar*costInf; clout=ifelse(clout>0,clout,0)}
+  if(type == "s") {
+    
+    # first case: sigma is not given (release 0.6.3, Nicola)
+    if(is.na(sigma)) {
+      center = centerFun(x, sg, type = "s", mu=mu, sigma=sigma)                  # compute center line
+      sgSize = table(sg)
+      c4 = getCoeffFun(sgSize, "c4")
+      B3 = (1-(nSigma/c4)*(sqrt(1-c4^2)))
+      B4 = (1+(nSigma/c4)*(sqrt(1-c4^2)))
+      if(cl == "u") {
+          clout = B4 * center                                                    # upper confidence limit (Montgomery, page 214)
+          clout[clout < 0] = 0                                                   # confidence limit cannot be less than 0
+        }
+      if(cl == "l") {
+          clout = B3 * center                                                    # lower confidence limit (Montgomery, page 214)
+          clout[clout < 0] = 0                                                   # confidence limit cannot be less than 0
+        }
+    }
+    
+    # second case: sigma is given (release 0.6.3, Nicola)
+    if(!is.na(sigma)) {
+	sgSize = table(sg)
+        c4 = getCoeffFun(sgSize, "c4")
+	B5 = c4 - nSigma*(sqrt(1-c4^2))
+	B6 = c4 + nSigma*(sqrt(1-c4^2))
+	if(cl == "u") {
+          clout = B6 * sigma                                                    # upper confidence limit (Montgomery, page 213)
+          clout[clout < 0] = 0                                                  # confidence limit cannot be less than 0
+        }
+        if(cl == "l") {
+          clout = B5 * sigma                                                    # lower confidence limit (Montgomery, page 213)
+          clout[clout < 0] = 0                                                  # confidence limit cannot be less than 0
+        }
+    }
+    
   }
 
 
   # i chart (xbar chart for individual measurements)
-  if(type=="i") {
+  if(type == "i") {
 
     # first case: mu and sigma are both not provided (as in release 0.6.0)
     if(is.na(mu) && is.na(sigma)) {
@@ -160,25 +181,23 @@ function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
 
 
   # mr chart
-  if(type=="mr") {
+  if(type == "mr") {                     
     #recalculates center kline
     #see when interval is used
     MR = centerFun(x = x, sg = sg, type = "mr", sigma = sigma)
     #calcola i limiti centrali
     d2 = getCoeffFun(sg+1, "d2")
     d3 = getCoeffFun(sg+1, "d3")
-
-    UCL = MR + nSigma * (d3/d2) * MR         # release 0.6.1, Nicola
-    LCL = MR - nSigma * (d3/d2) * MR         # release 0.6.1, Nicola
+    UCL = MR + nSigma * (d3/d2) * MR
+    LCL = MR - nSigma * (d3/d2) * MR
     LCL = ifelse(LCL < 0, 0, LCL)
-
     if(cl == "u") clout=rep(UCL,length(x))
     if(cl == "l") clout=rep(LCL,length(x))
   }
 
 
   # p chart
-  if(type=="p") {
+  if(type == "p") {
     # compute center line
     pbar = centerFun(x = x, sg = sg, type = "p", mu = mu)
     # compute control limits
@@ -191,14 +210,18 @@ function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
 
 
   # np chart
-  if(type=="np")  {
+  if(type == "np")  {
     #calculates pbar
     #for npbar
-    pbar  = centerFun(x = x, sg = sg, type = "p",  mu = mu/sg)
-    npbar = centerFun(x = x, sg = sg, type = "np", mu = mu)
+    if(is.na(mu)) {
+      pbar  = centerFun(x = x, sg = sg, type = "p")
+      
+    } else {
+      pbar = mu / sg
+    }
     #calculates UCL
-    UCL = npbar + nSigma*sqrt(sg*pbar*(1-pbar))
-    LCL = npbar - nSigma*sqrt(sg*pbar*(1-pbar))
+    UCL = (sg*pbar) + nSigma*sqrt((sg*pbar)*(1-pbar))
+    LCL = (sg*pbar) - nSigma*sqrt((sg*pbar)*(1-pbar))
     LCL = ifelse(LCL < 0, 0, LCL)   # non negativity
     if(cl == "u") clout=UCL
     if(cl == "l") clout=LCL
@@ -206,7 +229,7 @@ function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
 
 
   # c chart
-  if(type=="c") {
+  if(type == "c") {
     cline=centerFun(x = x, sg = sg, type = "c", mu = mu)
     UCL = cline + nSigma*sqrt(cline)
     LCL = cline - nSigma*sqrt(cline)
@@ -217,7 +240,7 @@ function(x, sg, nSigma, cl, type = "xbar", mu=NA, sigma=NA) {
 
 
   # u chart
-  if(type=="u") {
+  if(type == "u") {
     cline=centerFun(x=x, sg=sg, type="u", mu = mu)
     UCL = cline + nSigma*sqrt(cline/sg)
     LCL = cline - nSigma*sqrt(cline/sg)
