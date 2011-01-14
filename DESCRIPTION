@@ -1,8 +1,8 @@
 Package: qAnalyst
 Type: Package
 Title: Control Charts, Capability and Distribution Identification
-Version: 0.6.3
-Date: 2010-02-12
+Version: 0.6.4
+Date: 2011-01-14
 URL: www.quantide.com
 Author: Andrea Spano'
 Maintainer: Andrea Spano' <andrea.spano@quantide.com>
@@ -12,7 +12,7 @@ Description: qAnalyst performs: control charts for variables and
         normal and non - normal distributions and Distributions
         Identification
 License: GPL (>= 2)
-Depends: lattice, MASS, alr3, SuppDists
-Packaged: 2010-02-12 17:30:42 UTC; nicola
+Depends: lattice, MASS, car, SuppDists
+Packaged: 2011-01-14 09:37:59 UTC; nicola
 Repository: CRAN
-Date/Publication: 2010-02-12 20:28:40
+Date/Publication: 2011-01-14 12:09:45

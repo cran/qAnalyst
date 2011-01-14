@@ -21,13 +21,6 @@ Since version 0.1 qAnalyst plots and calculates statistics on different type of 
 qAnalyst can estimate parameters of most important control charts and plot them by trellis graphics. Summary and print generic method on spc object provides general statistics on input data chart.
 
 
-###############################################################################################
-Version 0.5.1 provided following enhancements:
-
-it is not more compulsory to specify test code k, p, nSigma parameters. Default values will be assumed if left missing.
-corrected a bug on sg specification in individuals (i, mr) chart. Now it means moving range windows.
-changes on spc object axis labels.
-
 ################################################################################################
 Version 0.5 provided the following enhancements:
 
@@ -38,45 +31,57 @@ Pareto chart are available.
 Functions to fit distribution and to assess goodness of fit (probability plot and Anderson Darling stats) are avaiabile.
 Several bugs have been fixed in control charts section.
 
+###############################################################################################
+Version 0.5.1 provided following enhancements:
+
+it is not more compulsory to specify test code k, p, nSigma parameters. Default values will be assumed if left missing.
+corrected a bug on sg specification in individuals (i, mr) chart. Now it means moving range windows.
+changes on spc object axis labels.
+
 ################################################################################################
-Version 0.52 provided the following enhancements:
+Version 0.5.2 provided the following enhancements:
 
 Capability for normal data modification.
 Correction on d2 coefficient when n=1m, now equal to zero. If  sugroups equal to one in a shewart chart exist, an error will be returned.
 
 ################################################################################################
-Version 0.53 provided the following enhancements:
+Version 0.5.3 provided the following enhancements:
 
 Small bugs correction.
 
 ################################################################################################
-Version 0.54 provided the following enhancements:
+Version 0.5.4 provided the following enhancements:
 
 Added a new output parameter: (approximated) probability of having a number of out-of-control (test 1) points equal or greater or equal the ones obtained in chart, given that the process is under control.
 Small bugs correction.
 
 ################################################################################################
-Version 0.60 provided the following enhancements:
+Version 0.6.0 provided the following enhancements:
 
 Function plot.spc allows to specify cex parameters for Strip, Axes, Scales and Points as a function argument.
 
 ################################################################################################
-Version 0.61 provided the following enhancements:
+Version 0.6.1 provided the following enhancements:
 
 Function spc allows to specify process standard (mean and standard deviation).
 Small bugs correction.
 
 ################################################################################################
-Version 0.62 provided the following enhancements:
+Version 0.6.2 provided the following enhancements:
 
 Some performace enhancements.
 Small bugs correction.
 
-################################################################################################################################################################################################
-Version 0.63 provided the following enhancements:
+################################################################################################
+Version 0.6.3 provided the following enhancements:
 
 Some performace enhancements.
 New option 'xbarVariability' for xbar chart. It permits to choice if use range or standard deviation as variability measure.
 Bugs correction.
+
+################################################################################################
+Version 0.6.4 provided the following enhancements:
+
+Bugs correction due to alr3 package update.
 
 ################################################################################################
